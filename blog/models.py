@@ -7,6 +7,9 @@ from django.http import HttpResponse
 class User(models.Model):  # users
     nick = models.TextField(unique=True)
     permissionLevel = models.TextField(default="user")
+
+    def __str__(self):
+        return self.nick
     # ^ will be something like "banned", "user" and "admin", that's all
     # password???
     # or however logging in will be done, idk
@@ -24,6 +27,9 @@ class Blog(models.Model):  # blogs
         except Blog.DoesNotExist:
             return -1
         return model_to_dict(b)
+
+    def __str__(self):
+        return self.name
 
 class Picture(models.Model):
     url = models.TextField()

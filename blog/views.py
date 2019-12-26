@@ -12,11 +12,11 @@ def index(request):
 
 def blog(request, blog_name):
 
-    blog = Blog.getByName(blog_name)
+    requested_blog = Blog.getByName(blog_name)
     # maybe somehow check if blog with given name exists and if not, return some custom error site?
-    if type(blog) is dict:
+    if type(requested_blog) is dict:
         template = loader.get_template('blog/blog.html')
-        return HttpResponse(template.render(blog))
+        return HttpResponse(template.render(requested_blog))
     else:
         template = loader.get_template('blog/notFound.html')
         return HttpResponse(template.render())
