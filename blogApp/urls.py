@@ -5,4 +5,5 @@ from blog import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('blogs/<blog_name>/', views.blog),
+    path('', views.index),
 ]
