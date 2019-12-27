@@ -21,15 +21,21 @@ class Blog(models.Model):  # blogs
     owner = models.OneToOneField(User, on_delete=models.CASCADE)
 
     @staticmethod
-    def getByName(blogname):
+    def getByName(blog_name):
         try:
-            b = Blog.objects.get(name=blogname)
+            b = Blog.objects.get(name=blog_name)
         except Blog.DoesNotExist:
             return -1
         return model_to_dict(b)
 
+    @staticmethod
+    def getBlogPosts(blog_name):  # NOT TESTED YET
+        b = Post.objects.filter(blog__name=blog_name)
+        return list(b)
+
     def __str__(self):
         return self.name
+
 
 class Picture(models.Model):
     url = models.TextField()
@@ -41,9 +47,9 @@ class Post(models.Model):  # blog post
     title = models.TextField()
     content = models.TextField()
     postDate = models.DateTimeField()
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    likes = models.ManyToManyField(User, related_name='likes_post')
-    pictures = models.ForeignKey(Picture, null=True, on_delete=models.CASCADE)
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+    likes = models.ManyToManyField(User, related_name='likes_post', blank=True)
+    pictures = models.ForeignKey(Picture, null=True, blank=True, on_delete=models.CASCADE)
     # reblogging???
 
 

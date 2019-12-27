@@ -1,0 +1,17 @@
+html,body {
+  margin: 0;
+  margin-top: 5px;
+  padding: 0;
+  background-color: lightblue;
+  position:relative;
+}
+.blog_post {
+    margin: 20px;
+    border:1px solid blue;
+}
+.container{
+	margin-top:60px;
+	z-index:0;
+	max-width:1080px;
+
+}
