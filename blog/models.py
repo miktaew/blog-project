@@ -1,24 +1,14 @@
+from django.contrib.auth.models import User
 from django.db import models
-from django.forms.models import model_to_dict
+from django.forms.models import model_to_dict, ModelForm
 # everything CASCADE for now
 from django.http import HttpResponse
-
-
-class User(models.Model):  # users
-    nick = models.TextField(unique=True)
-    permissionLevel = models.TextField(default="user")
-
-    def __str__(self):
-        return self.nick
-    # ^ will be something like "banned", "user" and "admin", that's all
-    # password???
-    # or however logging in will be done, idk
 
 
 class Blog(models.Model):  # blogs
     name = models.TextField(unique=True)
     description = models.TextField(blank=True, default="Welcome to my blog")
-    owner = models.OneToOneField(User, on_delete=models.CASCADE)
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name="blog")
 
     @staticmethod
     def getByName(blog_name):
@@ -58,3 +48,9 @@ class Comment(models.Model):  # comments on articles
     content = models.TextField()
     commentedPost = models.ForeignKey(Post, on_delete=models.CASCADE)
     likes = models.ManyToManyField(User, related_name='likes_comment')
+
+
+class BlogForm(ModelForm):
+    class Meta:
+        model = Blog
+        fields = ['name', 'description', 'owner']

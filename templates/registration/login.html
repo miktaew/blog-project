@@ -1,0 +1,23 @@
+{% extends 'blog/base.html' %}
+
+{% block title %} Log In {% endblock %}
+
+{% block content %}
+
+</div>
+    {% if request.user.is_authenticated %}
+        <p> You are already logged in!<br>
+            If you want to log out, you can simply click "logout" on sider or below <br><br>
+            <a href="{% url 'logout' %}">logout</a></p>
+    {% else %}
+        <p>You are not logged in</p>
+        <p>Log in below, or click <a href="{% url 'signup' %}"><button>register</button></a> to create a new account</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Login</button>
+        </form>
+    {% endif %}
+</div>
+
+{% endblock %}

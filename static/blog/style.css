@@ -1,17 +1,25 @@
-html,body {
+body{
   margin: 0;
-  margin-top: 5px;
+  margin-top: 0px;
   padding: 0;
   background-color: lightblue;
-  position:relative;
 }
 .blog_post {
     margin: 20px;
     border:1px solid blue;
 }
 .container{
-	margin-top:60px;
-	z-index:0;
+	margin-top:0px;
+	margin-left:10px;
 	max-width:1080px;
+}
+#sidebar{
+    background-color: lightgray;
+    margin-top:0px;
+}
+.siteContent{
+    margin-left:205px;
+    margin-top:20px;
+}
 
 }

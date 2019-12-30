@@ -1,23 +1,10 @@
-<!DOCTYPE html>
-{% load static %}
-<html lang="en">
-<head>
-    <link rel="stylesheet" href="{% static 'blogPy/css/mystyle.css' %}" />
-    <title>{% block title %} Blog {% endblock %}</title>
-</head>
+    {% extends 'blog/base.html' %}
 
-<body>
-    <div id="sidebar">
-        {% block sidebar %}
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/admin/">Administrator panel</a></li>
-        </ul>
-        {% endblock %}
-    </div>
+    {% block title %} Blogging App {% endblock %}
 
-    <div id="content">
-        {% block content %}{% endblock %}
-    </div>
-</body>
-</html>
+    {% block content %}
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/admin/">Administrator panel</a></li>
+            </ul>
+    {% endblock %}
