@@ -3,6 +3,7 @@
 
 <html lang="en">
 <head>
+    {% block head %} {% endblock %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title> {% block title %} {% endblock %} </title>
@@ -25,7 +26,7 @@
             {% if request.user.blog %}
                 <a href="/blogs/{{request.user.blog.name}}" class="w3-bar-item w3-button"> My Blog </a>
             {% else %}
-                <a href="#" class="w3-bar-item w3-button"> Create blog </a>
+                <a href="/create/" class="w3-bar-item w3-button"> Create blog </a>
             {% endif %}
         {% endif %}
     </div>

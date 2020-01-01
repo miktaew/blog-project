@@ -1,0 +1,14 @@
+{% extends 'blog/base.html' %}
+{% load crispy_forms_tags %}
+
+    {% block head %}
+        {% if request.user.blog %} <meta http-equiv="refresh" content="0; url='/blogs/{{request.user.blog.name}}'" /> {% endif %}
+    {% endblock %}
+
+    {% block content %}
+        <form method="post">
+            {% csrf_token %}
+            {{form|crispy}}
+            <input type="submit" value='Save'/>
+        </form>
+    {% endblock %}

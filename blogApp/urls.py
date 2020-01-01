@@ -12,5 +12,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('signup/', views.SignUp.as_view(), name='signup'),
     path('blogs/', RedirectView.as_view(pattern_name="main_page", permanent=False)),
+    path('create/', views.create_blog_view, name='blog_create'),
+
     #path(r'^(?P<url>./)$', lambda request: redirect('', permanent=False)),
 ]

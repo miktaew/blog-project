@@ -6,7 +6,7 @@ from django.http import HttpResponse
 
 
 class Blog(models.Model):  # blogs
-    name = models.TextField(unique=True)
+    name = models.CharField(unique=True, max_length=60)
     description = models.TextField(blank=True, default="Welcome to my blog")
     owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name="blog")
 
@@ -34,7 +34,7 @@ class Picture(models.Model):
 
 
 class Post(models.Model):  # blog post
-    title = models.TextField()
+    title = models.CharField(max_length=360)
     content = models.TextField()
     postDate = models.DateTimeField()
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
@@ -48,9 +48,3 @@ class Comment(models.Model):  # comments on articles
     content = models.TextField()
     commentedPost = models.ForeignKey(Post, on_delete=models.CASCADE)
     likes = models.ManyToManyField(User, related_name='likes_comment')
-
-
-class BlogForm(ModelForm):
-    class Meta:
-        model = Blog
-        fields = ['name', 'description', 'owner']
