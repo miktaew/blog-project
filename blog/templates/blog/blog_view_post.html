@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    {{blog.post.title}}
+{% endblock %}
+
+{% block content %}
+<div class="blog_post">
+<h4>{{post.title}}</h4>
+{{post.content}}
+</div>
+{% if request.user.is_authenticated %}
+<div class="text-center row align-items-center justify-content-center">
+    <form method="post" name="post_comment_form" class="col-sm-12 col-md-8 col-lg-6">
+        {% csrf_token %}
+        {{post_comment_form|crispy}}
+        <input type="submit" value="Comment"/>
+    </form>
+</div>
+{% else %}
+    <br><br><br><br>
+{% endif %}
+{{post.comment}}
+{% for comment in comments %}
+    <div class="comment_pane">
+        {% if comment.author == post.blog.owner %}
+        <strong style="color:blue">{{comment.author}}</strong><br>
+        {% else %}
+        <strong>{{comment.author}} (<a href="/blogs/{{comment.author.blog.name}}/">{{comment.author.blog.name}}</a>)</strong><br>
+        {% endif %}
+        {{comment.content}}
+    </div>
+{% endfor %}
+
+{% endblock %}

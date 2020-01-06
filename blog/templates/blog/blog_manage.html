@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %} Blog settings {% endblock %}
+
+{% block content %}
+{% if blog.active %}
+<div class="row">
+        <div class="col-sm-12 col-md-5 description_edition_panel manage_panel">
+            <h4>Change description</h4>
+                <form method="post" name="update">
+                    {% csrf_token %}
+                    {{update_blog_form|crispy}}
+                    <input type="submit" value="Change" />
+                </form>
+
+        </div>
+
+        <div class="col-sm-12 col-md-6 deactivation_panel manage_panel">
+
+            <h5>Deactivate your blog</h5>
+            <div style="color:red"><strong>Warning! Though it can be reactivated, all content from your blog will be lost!</strong></div> {# Maybe make it be removed after certain time, like 30 days? #}
+                <form method="post" name="deactivate">
+                    {% csrf_token %}
+                    {{deactivation_form|crispy}}
+
+                    <input type="submit" value="Deactivate" />
+                </form>
+
+            </div>
+        </div>
+</div>
+{% else %}
+    <div class="row">
+
+        <div class="col-sm-12 col-md-6 reactivation_panel">
+            <h4>Reactivate your blog</h4>
+                <form method="post" name="reactivate">
+                    {% csrf_token %}
+                    {{reactivation_form|crispy}}
+                    <input type="submit" value="Reactivate" />
+                </form>
+
+            </div>
+        </div>
+
+</div>
+{% endif %}
+{% endblock %}

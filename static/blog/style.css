@@ -2,11 +2,12 @@ body{
   margin: 0;
   margin-top: 0px;
   padding: 0;
-  background-color: lightblue;
 }
 .blog_post {
-    margin: 20px;
-    border:1px solid blue;
+    background-color: #d9d9d9;
+    min-height:100px;
+    padding-top:10px;
+    padding-bottom:10px;
 }
 .container{
 	margin-top:0px;
@@ -21,5 +22,37 @@ body{
     margin-left:205px;
     margin-top:20px;
 }
-
+.new-blog-list{
+    border:1px solid black;
+}
+.top-blog-list{
+    border:1px solid black;
+}
+.new-blog-tile{
+    cursor:pointer;
+    min-height:60px;
+    border-top: 1px solid black;
+    color:black;
+}
+a {
+    color:black;
+}
+.deactivation-panel {
+    border: 1px solid black;
+}
+.post-delet {
+    color: red;
+}
+.manage_panel {
+    border: 1px solid black;
+    margin: 5px;
+}
+.comment_pane {
+    margin-top: 10px;
+    background-color: lightgray;
+}
+.blog-info {
+    text-align: center;
+    background-color: silver;
+    padding: 10px;
 }

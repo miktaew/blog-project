@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block head %}
+    {% if not request.user.blog or not request.user.blog.name == post.blog.name %}
+        <meta http-equiv="refresh" content="0; url='{{request.get_full_path|slice:':-5'}}'" />
+    {% endif %}
+{% endblock %}
+
+{% block title %}
+    Update post
+{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{update_post_form|crispy}}
+    <input type="submit" value="Update"/>
+</form>
+{% endblock %}

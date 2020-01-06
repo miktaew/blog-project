@@ -1,0 +1,12 @@
+{% load crispy_forms_tags %}
+
+{% block content %}
+{% if blog.name == user.blog.name %}
+<form method="post" name="edit_blog_form" action="{% url 'blog_update' %}">
+    {% csrf_token %}
+    {{blog_update_form|crispy}}
+    <input type="submit" value='Update'/>
+
+</form>
+{% endif %}
+{% endblock %}

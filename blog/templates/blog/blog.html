@@ -1,19 +1,89 @@
-{% extends 'blog/base.html' %}
+{% extends 'base.html' %}
 
     {% block title %}
     {{blog.name}}
     {% endblock %}
 
     {% block content %}
+    {% if not blog.active %}
+        <h2> <strong>Blog has been deactivated!</strong></h2>
+    {% else %}
         <div class="container">
             <div class="col-12">
-                <h2>{{blog.description}} </h2>
-                    {% for post in posts %}
-                        <div class="blog_post">
-                            <h4> {{post.title}} </h4>
-                            {{post.content}}
+                <div class="blog-info col-12">
+                    <h1>{{blog.name}} </h1>
+                    <h4>{{blog.description}}</h4>
+                </div>
+                <br><br>
+                    {% if blog.name == user.blog.name %}
+                    <a href="/blog/post/create/" target="none"><button>Create new post</button></a>
+                    {% endif %}
+                    <br><br><br><br>
+
+                {% for post in posts %}
+                    <div class="row" style="margin-bottom:20px">
+                        {% if blog.name == user.blog.name %}
+                        <div class="col-1">
+                        {% include 'blog/blog_delete_post.html' %}
+
+
+                        <a href="/blog/post/update/{{post.id}}/" class="post-updat"><button><i class="fa fa-cog"></i></button></a>
                         </div>
-                    {% endfor %}
+                        <div class="blog_post col-11">
+                        {% else %}
+                        <div class="blog_post col-12">
+                            {% endif %}
+
+                            <a href="/blogs/{{blog.name}}/post/{{post.id}}/" class="stretched-link"><div>
+                            <h4> {{post.title}} </h4>
+                                {{post.content}}
+                        </div></a></div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
+
+            {% if posts.has_other_pages %}
+            <div class="text-center row align-items-center justify-content-center">
+            <ul class="pagination">
+                {% if posts.has_previous %}
+                <li><a href="?page={{posts.previous_page_number}}"&laquo;</a></li>
+                {% else %}
+                <li class="disable"><span></span>&laquo;</li>
+                {% endif %}
+                {% for page in posts.paginator.page_range %}
+                &nbsp
+                    {% if posts.number == i %}
+                <li class="active"><span> {{ page }} <span class="sr-only"> (current) </span></span></li>
+                    {% else %}
+                <li><a href="?page={{ page }}"> {{ page }} </a></li>
+                    {% endif %}
+                &nbsp
+                {% endfor %}
+                {% if posts.has_next %}
+                    <li><a href="?page={{ posts.next_page_number }}">&raquo;</a></li>
+                {% else %}
+                    <li class="disable"><span>&raquo;</span></li>
+                {% endif %}
+            </ul>
+            </div>
+            {% endif %}
+
+    <script>
+        function confirm_delet(e)
+        {
+            try{
+                var confirmation = confirm('Are you sure?');
+                if (!confirmation)
+                {
+                    e.preventDefault();
+                }
+            }
+            catch(err)
+            {
+                alert(err);
+            }
+        }
+    </script>
+    {% endif %}
     {% endblock %}

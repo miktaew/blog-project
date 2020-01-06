@@ -1,0 +1,20 @@
+    {% extends 'base.html' %}
+
+    {% block title %} Blogging App {% endblock %}
+
+    {% block content %}
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/admin/">Administrator panel</a></li>
+            </ul>
+        <div class="row">
+            <div class="col-5 top-blog-list"> </div>
+            <div class="col-2"></div>
+            <div class="col-5 new-blog-list">
+                <br><h4> Newest blogs on our site </h4> <br>
+            {% for blog in blogs %}
+                <a href="/blogs/{{blog.name}}/" target="_blank"><div class="new-blog-tile"><h5>{{blog.name}}</h5></div></a>
+            {% endfor %}
+            </div>
+        </div>
+    {% endblock %}
