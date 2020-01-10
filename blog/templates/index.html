@@ -1,20 +1,59 @@
-    {% extends 'base.html' %}
+    {% extends 'base/base.html' %}
 
     {% block title %} Blogging App {% endblock %}
 
     {% block content %}
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/admin/">Administrator panel</a></li>
-            </ul>
+        <div class="col-12 app-info">
+            <h5> Welcome to blogApp </h5>
+            If you want to start your own blog, all you need to do is
+            <a href="{% url 'login' %}?next={{request.path}}"style="color:white;"> signing up </a>
+            <br>
+            You can also try to find something interesting on lists below
+
+        </div>
+        <br><br>
         <div class="row">
-            <div class="col-5 top-blog-list"> </div>
-            <div class="col-2"></div>
-            <div class="col-5 new-blog-list">
-                <br><h4> Newest blogs on our site </h4> <br>
-            {% for blog in blogs %}
-                <a href="/blogs/{{blog.name}}/" target="_blank"><div class="new-blog-tile"><h5>{{blog.name}}</h5></div></a>
-            {% endfor %}
+            <div class="col-md-5 col-12 top-blog-list">
+                <br>
+                <h4> <strong>Most popular blogs on our site</strong> </h4>
+                <br>
+                {% for blog in top_blogs %}
+                    <div>
+                        <a href="/blogs/{{blog.name}}/" target="_blank">
+                            <div class="blog-tile row">
+                                <div class="col-bg-10 col-9">
+                                    <br>
+                                    <h6>{{blog.name}}</h6>
+                                    </div>
+                                <div class="col-bg-2 col-3"><br>
+                                    {{blog.faves}}
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="col-2">
+            </div>
+
+            <div class="col-md-5 col-12 new-blog-list">
+                <br>
+                <h4> <strong>Newest blogs on our site</strong> </h4>
+                <br>
+                {% for blog in new_blogs %}
+                <div>
+                    <a href="/blogs/{{blog.name}}/" target="_blank">
+                        <div class="blog-tile row">
+                            <div class="col-12">
+                            <br>
+                            <h6>{{blog.name}}</h6>
+                                </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
             </div>
         </div>
     {% endblock %}

@@ -2,9 +2,9 @@
 
 {% block content %}
 {% if blog.name == user.blog.name %}
-<form method="post" name="delete_post_form" action="{% url 'delete_post' post.id %}">
+<form method="post" name="delete_post_form" action="{% url 'delete_post' post.post.id %}">
     {% csrf_token %}
-    <button type="submit"><i class='fa fa-times'></i></button>
+    <button type="submit" onclick="confirm_delet(event)"><i class='fa fa-times'></i></button>
 </form>
 {% endif %}
 {% endblock %}

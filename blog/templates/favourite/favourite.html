@@ -1,0 +1,84 @@
+{% extends 'base/base.html' %}
+
+{% block title %}
+Your favourite blogs
+{% endblock %}
+
+{% block content %}
+    <br><br>
+<div class="col-12" style="text-align:center">
+    <h5> List of your favourite blogs. Marked ones have new content since your last visit</h5>
+</div>
+<div class="text-center row align-items-center justify-content-center" style="margin-top:50px;">
+    <div style="margin-right:10px;">
+        <a href="?sorting_order=alphabetical">
+            <button> Sort alphabetically &nbsp&nbsp </button>
+        </a>
+    </div>
+
+    <div style="margin-left:10px;">
+        <a href="?sorting_order=new_count">
+            <button> Sort by new content</button>
+        </a>
+    </div>
+</div>
+
+<br><br>
+<div class="text-center row align-items-center justify-content-center">
+    {% with loopcount=0 %}
+    {% for fav in fav_blogs %}
+
+    <div class="col-5" style="margin-left:10px;">
+
+        <a href="/blogs/{{fav.blog}}/" style="color:black" class="stretched-link">
+            {% if fav.count > 0 %}
+            <div class="fave-pane fave-pane-new row">
+                <div class="col-11">
+                    {{fav.blog}}
+                </div>
+                <div class="col-1 count-block">
+                    {{fav.count}}
+                </div>
+            </div>
+             {% else %}
+            <div class="fave-pane row">
+                <div class="col-11">
+                    {{fav.blog}}
+                </div>
+            </div>
+            {% endif %}
+        </a>
+    </div>
+    {% endfor %}
+    {% if loopcount|divisibleby:2 %}
+    <div class="col-5" style="margin-left:10px"></div>
+    {% endif %}
+    {% endwith %}
+</div>
+
+{% if fav_blogs.has_other_pages %}
+<div class="text-center row align-items-center justify-content-center">
+    <ul class="pagination">
+        {% if fav_blogs.has_previous %}
+        <li><a href="?page={{ fav_blogs.previous_page_number }}&sorting_order={{sorting_order}}"><i class="fas fa-chevron-left"></i></a></li>
+        {% else %}
+        <li class="disable"><span></span><i class="fas fa-chevron-left"></i></li>
+        {% endif %}
+        {% for page in fav_blogs.paginator.page_range %}
+        &nbsp
+        {% if fav_blogs.number == i %}
+        <li class="active"><span> {{ page }} <span class="sr-only"> (current) </span></span></li>
+        {% else %}
+        <li><a href="?page={{ page }}&sorting_order={{sorting_order}}"> {{ page }} </a></li>
+        {% endif %}
+        &nbsp
+        {% endfor %}
+        {% if fav_blogs.has_next %}
+        <li><a href="?page={{ fav_blogs.next_page_number }}&sorting_order={{sorting_order}}"><i class="fas fa-chevron-right"></i></a></li>
+        {% else %}
+        <li class="disable"><span><i class="fas fa-chevron-right"></i></span></li>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}
+{% endblock %}

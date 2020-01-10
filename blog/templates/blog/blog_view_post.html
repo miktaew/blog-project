@@ -1,16 +1,26 @@
-{% extends 'base.html' %}
+{% extends 'base/base.html' %}
 {% load crispy_forms_tags %}
 
 
 {% block title %}
-    {{blog.post.title}}
+    {{post.title}}
 {% endblock %}
 
 {% block content %}
-<div class="blog_post">
-<h4>{{post.title}}</h4>
-{{post.content}}
+
+<div class="col-12 blog_return"> <a href="/blogs/{{post.blog.name}}/" style="color:inherit;" class="stretched-link">Return to the blog</a></div>
+<div class="blog_post col-12">
+    <h4>{{post.post.title}}</h4>
+    {{post.content|linebreaks}}
+    <div class="w3-content w3-display-container">
+        {% for image in images %}
+        <image src="/media/{{image.image}}" class="slideshow_image"></image>
+        {% endfor %}
+        <button class="w3-button w3-black w3-display-left" onclick="plusDivs(-1)">&#10094;</button>
+        <button class="w3-button w3-black w3-display-right" onclick="plusDivs(1)">&#10095;</button>
+    </div>
 </div>
+<br><br>
 {% if request.user.is_authenticated %}
 <div class="text-center row align-items-center justify-content-center">
     <form method="post" name="post_comment_form" class="col-sm-12 col-md-8 col-lg-6">
@@ -22,9 +32,10 @@
 {% else %}
     <br><br><br><br>
 {% endif %}
-{{post.comment}}
+
 {% for comment in comments %}
-    <div class="comment_pane">
+<div class="text-center row align-items-center justify-content-center">
+    <div class="comment_pane col-bg-6 col-md-8 col-12">
         {% if comment.author == post.blog.owner %}
         <strong style="color:blue">{{comment.author}}</strong><br>
         {% else %}
@@ -32,6 +43,26 @@
         {% endif %}
         {{comment.content}}
     </div>
+</div>
 {% endfor %}
 
+<script>
+    var slideIndex = 1;
+    showDivs(slideIndex);
+
+    function plusDivs(n) {
+        showDivs(slideIndex += n);
+    }
+
+    function showDivs(n) {
+        var i;
+        var x = document.getElementsByClassName("slideshow_image");
+        if (n > x.length) {slideIndex = 1}
+        if (n < 1) {slideIndex = x.length}
+        for (i = 0; i < x.length; i++) {
+            x[i].style.display = "none";
+        }
+        x[slideIndex-1].style.display = "block";
+}
+</script>
 {% endblock %}

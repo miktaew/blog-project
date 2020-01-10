@@ -4,8 +4,9 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 
-from blog.models import Blog, Post, Comment
+from blog.models import Blog, Post, Comment, Image
 
 
 class BlogForm(forms.ModelForm):
@@ -115,7 +116,6 @@ class BlogReactivationForm(forms.Form):
             'reactivation_password',
         ]
 
-
     def __init__(self, *args, **kwargs):
         # print("kwargs:"+str(kwargs["user"]))
         self.user = kwargs.pop('user')
@@ -139,9 +139,6 @@ class BlogNewPostForm(forms.ModelForm):
         required=True,
         widget=forms.Textarea()
     )
-    pictures = forms.ImageField(
-        required=False
-    )
     blog = forms.ModelChoiceField(
         queryset=Blog.objects.all(),
         widget=forms.HiddenInput(),
@@ -152,10 +149,19 @@ class BlogNewPostForm(forms.ModelForm):
         fields = [
             'title',
             'content',
-            'pictures',
             'blog',
         ]
         widgets = {'blog': forms.HiddenInput(), 'content': forms.Textarea()}
+
+
+class ImageForm(forms.ModelForm):
+    image = forms.ImageField(label='Image', required=False)
+
+    class Meta:
+        model = Image
+        fields = [
+            'image',
+        ]
 
 
 class PostUpdateForm(forms.ModelForm):
@@ -228,3 +234,12 @@ class BlogPostCommentForm(forms.ModelForm):
             'commented_post': forms.HiddenInput(),
             'content': forms.Textarea(),
         }
+
+
+class CaseInsensitiveUserCreationForm(UserCreationForm):
+    def clean(self):
+        cleaned_data = super(CaseInsensitiveUserCreationForm, self).clean()
+        username = cleaned_data.get('username')
+        if username and User.objects.filter(username__iexact=username).exists():
+            self.add_error('username', 'A user with that username already exists.')
+        return cleaned_data
