@@ -9,7 +9,8 @@ from django.utils import timezone
 
 
 class Blog(models.Model):  # blogs
-    name = models.CharField(unique=True, max_length=60)
+    name = models.CharField(unique=True, max_length=60)  # this is actually blog URL, not the displayed name
+    display_name = models.CharField(max_length=120, default="My Blog")
     description = models.TextField(blank=True, default="Welcome to my blog", max_length=600)
     owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name="blog")
     creation_date = models.DateTimeField(editable=False)
@@ -24,6 +25,14 @@ class Blog(models.Model):  # blogs
             return
         return b
     # this seems really stupid
+
+    @staticmethod
+    def get_blog_favcount(blog_name):
+        try:
+            favcount = Blog.objects.annotate(faves=Count('blog_favs')).get(name=blog_name).faves  # ugly
+        except Blog.DoesNotExist:
+            return -1
+        return favcount
 
     @staticmethod
     def get_blog_posts(blog_name):
@@ -61,7 +70,6 @@ class Post(models.Model):  # blog post
     creation_date = models.DateTimeField()
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='post_blog')
     likes = models.ManyToManyField(User, related_name='likes_post', default=0)
-    # reblogging???
 
     def save(self, *args, **kwargs):
         if not self.id:

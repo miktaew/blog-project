@@ -12,6 +12,7 @@
 {% endblock %}
 
 {% block content %}
+<div class="col-12 blog_return"> <a href="/blogs/{{post.blog.name}}/" style="color:inherit;" class="stretched-link">Return</a></div>
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{update_post_form|crispy}}

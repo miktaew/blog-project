@@ -1,7 +1,7 @@
 {% extends 'base/base.html' %}
 
     {% block title %}
-    {{blog.name}}
+    {{blog.display_name}}
     {% endblock %}
 
     {% block content %}
@@ -11,7 +11,7 @@
         <div class="container">
             <div class="col-12">
                 <div class="blog-info col-12">
-                    <h1>{{blog.name}} </h1>
+                    <h1>{{blog.display_name}} </h1>
                     <h4>{{blog.description}}</h4>
                 </div>
                 <br><br>
@@ -33,41 +33,55 @@
                     {% endif %}
                     {% endif %}
                     </div>
+                Faved by {{ favcount }} users
                     <br><br><br>
 
                 {% for post in posts %}
-                    <div class="text-center row align-items-center justify-content-center blog-item" style="margin-bottom:20px;">
-                        {% if blog.name == user.blog.name %}
-                        <div>
-                        {% include 'blog/blog_delete_post.html' %}
+                    <div class="text-center align-items-center justify-content-center blog-item" style="margin-bottom:20px;">
 
-
-                        <a href="/blog/post/update/{{post.post.id}}/" class="post-updat"><button><i class="fa fa-cog"></i></button></a>
-                        </div>
-                        <div class="blog_post col-10 col-xs-11" style="max-height:inherit">
-                        {% else %}
                         <div class="blog_post col-12" style="max-height:inherit">
-                        {% endif %}
-                                <div>
-                                    <h4 class="post_title"> {{post.post.title}} </h4>
-                                    {{post.post.content|linebreaks}}
-                                    {% if post.image %}
 
-                                    <img class="blog_image" src="/media/{{post.image.image}}" style="width:100%">
-                                    {% endif %}
+                            {% if blog.name == user.blog.name %}
+                            <div class="post_manage">
+                                <div class="post_delet">
+                                    {% include 'blog/blog_delete_post.html' %}
                                 </div>
+                                <a href="/blog/post/update/{{post.post.id}}/" class="post-updat"><button><i class="fa fa-cog"></i></button></a>
+                            </div><div id="spacer">&nbsp</div>
+                            {% endif %}
+
+                            <div class="post_title">
+                                <h4> {{post.post.title}} </h4>
+                            </div>
+
+                            <div >
+                                {{post.post.content|linebreaks}}
+                                {% if post.image %}
+
+                                <img class="blog_image" src="/media/{{post.image.image}}">
+                                {% endif %}
+                            </div>
                             {% if post.image_count > 0 %}
                             <div class="icon_wrapper">
-                                <div> <i class="far fa-images"></i> {{post.image_count}}  </div>
-                                <div><i class="far fa-comments"></i> {{post.post_count}} </div>
+                                <div>
+                                    <i class="far fa-images"></i> {{post.image_count}}
+                                </div>
+                                <div>
+                                    <i class="far fa-comments"></i> {{post.post_count}}
+                                </div>
                             </div>
                             {% else %}
                             <div class="icon_wrapper">
-                                <div><i class="far fa-comments"></i> {{post.post_count}}</div>
+                                <div>
+                                    <i class="far fa-comments"></i> {{post.post_count}}
+                                </div>
                             </div>
                             {% endif %}
-                            <a href="/blogs/{{blog.name}}/post/{{post.post.id}}/"><div class="read_more"> read more... </div></a>
-
+                            <a href="/blogs/{{blog.name}}/post/{{post.post.id}}/">
+                                <div class="read_more">
+                                    read more...
+                                </div>
+                            </a>
                         </div>
                     </div>
                 {% endfor %}

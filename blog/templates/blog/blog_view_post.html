@@ -10,15 +10,21 @@
 
 <div class="col-12 blog_return"> <a href="/blogs/{{post.blog.name}}/" style="color:inherit;" class="stretched-link">Return to the blog</a></div>
 <div class="blog_post col-12">
-    <h4>{{post.post.title}}</h4>
+    <h4>{{post.title}}</h4>
     {{post.content|linebreaks}}
-    <div class="w3-content w3-display-container">
+    {% if images %}
+
+    <div class="w3-content w3-display-container carousel_wrap">
         {% for image in images %}
-        <image src="/media/{{image.image}}" class="slideshow_image"></image>
+        <div class="text-center row align-items-center justify-content-center">
+        <image src="/media/{{image.image}}" class="slideshow_image blog_image"></image>
+            </div>
         {% endfor %}
         <button class="w3-button w3-black w3-display-left" onclick="plusDivs(-1)">&#10094;</button>
         <button class="w3-button w3-black w3-display-right" onclick="plusDivs(1)">&#10095;</button>
     </div>
+
+    {% endif %}
 </div>
 <br><br>
 {% if request.user.is_authenticated %}
@@ -45,7 +51,7 @@
     </div>
 </div>
 {% endfor %}
-
+{% if images %}
 <script>
     var slideIndex = 1;
     showDivs(slideIndex);
@@ -64,5 +70,6 @@
         }
         x[slideIndex-1].style.display = "block";
 }
+{% endif %}
 </script>
 {% endblock %}

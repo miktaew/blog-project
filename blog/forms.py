@@ -25,6 +25,11 @@ class BlogForm(forms.ModelForm):
             }
         )
     )
+    display_name = forms.CharField(
+        required=True,
+        help_text="Name of your blog",
+        max_length=120
+    )
     owner = forms.ModelChoiceField(
         queryset=User.objects.all(),
         widget=forms.HiddenInput(),
@@ -35,6 +40,7 @@ class BlogForm(forms.ModelForm):
         fields = [
             'name',
             'description',
+            'display_name',
             'owner',
         ]
         widgets = {'owner': forms.HiddenInput()}
@@ -56,6 +62,12 @@ class RawBlogForm(forms.Form):
             }
         )
     )
+    display_name = forms.CharField(
+        required=True,
+        initial="My Blog",
+        help_text="Name of your blog",
+        max_length=120
+    )
     owner = forms.ModelChoiceField(
         queryset=User.objects.all(),
         widget=forms.HiddenInput(),
@@ -71,9 +83,9 @@ class RawBlogForm(forms.Form):
 
 
 class BlogDeactivationForm(forms.Form):
-    confirm_name = forms.CharField(max_length=60,
+    confirm_name = forms.CharField(max_length=120,
                                    required=True,
-                                   help_text="Confirm name of your blog",)
+                                   help_text="Enter blog name for confirmation",)
     # No, blog for deletion is not taken from this field, it's just for confirmation
     deactivation_password = forms.CharField(label="Password",
                                             help_text="Confirm password for deactivation",
@@ -99,7 +111,7 @@ class BlogDeactivationForm(forms.Form):
 
     def clean_confirm_name(self):
         confirm_name = self.cleaned_data['confirm_name']
-        valid = confirm_name == self.user.blog.name
+        valid = confirm_name == self.user.blog.display_name
         if not valid:
             raise forms.ValidationError('Invalid blog name')
         return confirm_name
@@ -193,11 +205,18 @@ class BlogUpdateForm(forms.ModelForm):
         widget=forms.Textarea(),
         max_length=600,
     )
+    display_name = forms.CharField(
+        required=True,
+        initial="My Blog",
+        help_text="Name of your blog",
+        max_length=120
+    )
 
     class Meta:
         model = Blog
         fields = [
             'description',
+            'display_name',
         ]
         widgets = {'description': forms.Textarea()}
 

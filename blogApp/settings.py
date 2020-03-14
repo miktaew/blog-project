@@ -135,3 +135,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 AUTHENTICATION_BACKENDS = ('blog.backends.CaseInsensitiveModelBackend', )
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

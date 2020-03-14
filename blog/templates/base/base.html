@@ -33,10 +33,10 @@
                 <a href="{% url 'login' %}?next={{request.path}}" class="w3-bar-item w3-button">Login/Register  </a>
             {% endif %}
         {% if request.user.is_authenticated %}
-            {% if request.user.blog %}
                 {% if user.is_superuser %}
                     <a href="/admin/" class="w3-bar-item w3-button"> Admin panel</a>
                 {% endif %}
+            {% if request.user.blog %}
                 {% if request.user.blog.active %}
                     <a href="/blogs/{{request.user.blog.name}}/" class="w3-bar-item w3-button"> My blog </a>
                 {% else %}

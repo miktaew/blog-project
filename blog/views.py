@@ -54,11 +54,8 @@ def blog(request, blog_name):
         except FavouriteBlogs.DoesNotExist:
             is_faved = False
         except TypeError:
-            is_faved = False  # kinda pointless having it in this situation, but it's simpler than making 2 different
-            # contexts
+            is_faved = False
 
-        images = Image.objects.filter(post__blog=Blog.objects.get(name=blog_name))
-        # print(images)
         posts_list = Blog.get_blog_posts(blog_name)
         content = []
         for post in posts_list:
@@ -75,7 +72,8 @@ def blog(request, blog_name):
             except Exception:
                 continue
 
-
+        favcount = Blog.get_blog_favcount(blog_name)
+        print(favcount)
         page = request.GET.get('page', 1)
         paginator = Paginator(content, 10)
         try:
@@ -85,7 +83,7 @@ def blog(request, blog_name):
         except EmptyPage:
             posts = paginator.page(paginator.num_pages)
 
-        context = {"blog": requested_blog, "posts": posts, 'is_faved': is_faved}
+        context = {"blog": requested_blog, "posts": posts, 'is_faved': is_faved, 'favcount': favcount}
         return render(request, 'blog/blog.html', context)
     else:
         return redirect('/')
