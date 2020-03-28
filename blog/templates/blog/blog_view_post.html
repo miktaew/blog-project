@@ -9,6 +9,33 @@
 {% block content %}
 
 <div class="col-12 blog_return"> <a href="/blogs/{{post.blog.name}}/" style="color:inherit;" class="stretched-link">Return to the blog</a></div>
+
+{% if like_count > 0 %}
+<div class="likecount">
+                    Post liked by {{ like_count }} users
+</div>
+{% endif %}
+<div class="text-center row align-items-center justify-content-center">
+                {% if request.user.is_authenticated %}
+                    {% if not post.blog.name == request.user.blog.name %}
+                        {% if not is_liked %}
+                            <form method="post" action="like/">
+                                {% csrf_token %}
+                                <button type="submit">Like <i class="far fa-heart"></i> </button>
+                            </form>
+                        {% elif is_liked %}
+                            <form method="post" action="unlike/">
+                                {% csrf_token %}
+                                <button type="submit">Unlike <i class="fas fa-ban"></i> </button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+
+</div>
+
+<br><br><br>
+
 <div class="blog_post col-12">
     <h4>{{post.title}}</h4>
     {{post.content|linebreaks}}
@@ -51,6 +78,33 @@
     </div>
 </div>
 {% endfor %}
+
+{% if comments.has_other_pages %}
+<div class="text-center row align-items-center justify-content-center">
+    <ul class="pagination">
+        {% if comments.has_previous %}
+        <li><a href="?page={{ comments.previous_page_number }}"><i class="fas fa-chevron-left"></i></a></li>
+        {% else %}
+        <li class="disable"><span></span><i class="fas fa-chevron-left"></i></li>
+        {% endif %}
+        {% for page in comments.paginator.page_range %}
+        &nbsp
+        {% if comments.number == i %}
+        <li class="active"><span> {{ page }} <span class="sr-only"> (current) </span></span></li>
+        {% else %}
+        <li><a href="?page={{ page }}"> {{ page }} </a></li>
+        {% endif %}
+        &nbsp
+        {% endfor %}
+        {% if comments.has_next %}
+        <li><a href="?page={{ messages.next_page_number }}"><i class="fas fa-chevron-right"></i></a></li>
+        {% else %}
+        <li class="disable"><span><i class="fas fa-chevron-right"></i></span></li>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}
+
 {% if images %}
 <script>
     var slideIndex = 1;

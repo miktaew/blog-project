@@ -21,3 +21,35 @@ def favs_adv_sort(favs):
     first.sort(key=fav_key_alph)
     second.sort(key=fav_key_alph)
     return [*first, *second]
+
+
+def private_message_date(message):
+    return message['message'].creation_date
+
+
+def private_message_unread_old_sort(request, messages):
+    first = []
+    second = []
+    for message in messages:
+        if not message['message'].read and message['message'].receiver == request.user:
+            first.append(message)
+        else:
+            second.append(message)
+
+    first.sort(key=private_message_date)
+    second.sort(key=private_message_date)
+    return [*first, *second]
+
+
+def private_message_unread_new_sort(request, messages):
+    first = []
+    second = []
+    for message in messages:
+        if not message['message'].read and message['message'].receiver == request.user:
+            first.append(message)
+        else:
+            second.append(message)
+
+    first.sort(key=private_message_date, reverse=True)
+    second.sort(key=private_message_date, reverse=True)
+    return [*first, *second]

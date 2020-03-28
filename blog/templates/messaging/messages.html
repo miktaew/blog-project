@@ -1,0 +1,102 @@
+{% extends 'base/base.html' %}
+
+    {% block title %}
+        Your private messages
+    {% endblock %}
+
+    {% block content %}
+
+    <div class="row col-12">
+    <a href="/messages/create/" class="col-12">
+        <div class="message_button">
+        Send new message
+    </div>
+        </a>
+        </div>
+
+    <div class="text-center row align-items-center justify-content-center">
+    <div style="margin:10px;">
+        <a href="?sorting_order=newest">
+            <button> Sort by new</button>
+        </a>
+    </div>
+
+    <div style="margin:10px;">
+        <a href="?sorting_order=oldest">
+            <button> Sort by old </button>
+        </a>
+    </div>
+    <div style="margin:10px;">
+        <a href="?sorting_order=new_unread">
+            <button> Sort by new + unread </button>
+        </a>
+    </div>
+    <div style="margin:10px;">
+        <a href="?sorting_order=old_unread">
+            <button> Sort by old + unread </button>
+        </a>
+    </div>
+</div>
+
+    {% for message in messages %}
+    <a href="/messages/{{message.message.id}}/" target="_blank">
+    <div class="message_tile col-12 row {% if not message.message.read and not message.message.sender == request.user %} message-new {% endif %}">
+        <div class="col-7 col-lg-9">
+            {% if message.message.sender == request.user %}
+            sent to: {{message.message.receiver}}
+            {% else %}
+            sent by: {{message.message.sender}}
+            {% endif %}
+        </div>
+        <div class="col-5 col-lg-3 message-date"> {{message.message.creation_date}} </div>
+        <div class="col-11  message_tile-title">{{message.message.title}}</div>
+        {% if message.message.parent %} <div class="col-1 message-count"> [+{{message.count}}] </div> {% endif %}
+
+    </div>
+    </a>
+
+    {% endfor %}
+
+{% if messages.has_other_pages %}
+<div class="text-center row align-items-center justify-content-center">
+    <ul class="pagination">
+        {% if messages.has_previous %}
+        <li><a href="?page={{ messages.previous_page_number }}&sorting_order={{sorting_order}}"><i class="fas fa-chevron-left"></i></a></li>
+        {% else %}
+        <li class="disable"><span></span><i class="fas fa-chevron-left"></i></li>
+        {% endif %}
+        {% for page in messages.paginator.page_range %}
+        &nbsp
+        {% if messages.number == page %}
+        <li class="active"><span> {{ page }} <span class="sr-only"> (current) </span></span></li>
+        {% else %}
+        <li><a href="?page={{ page }}&sorting_order={{sorting_order}}"> {{ page }} </a></li>
+        {% endif %}
+        &nbsp
+        {% endfor %}
+        {% if messages.has_next %}
+        <li><a href="?page={{ messages.next_page_number }}&sorting_order={{sorting_order}}"><i class="fas fa-chevron-right"></i></a></li>
+        {% else %}
+        <li class="disable"><span><i class="fas fa-chevron-right"></i></span></li>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}
+
+    <script>
+        function confirm_delet(e)
+        {
+            try{
+                var confirmation = confirm('Are you sure?');
+                if (!confirmation)
+                {
+                    e.preventDefault();
+                }
+            }
+            catch(err)
+            {
+                alert(err);
+            }
+        }
+    </script>
+    {% endblock %}

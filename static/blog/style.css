@@ -192,6 +192,74 @@ a.button {
     height:800px;
 }
 
+.favcount, .likecount{
+    margin-top:10px;
+    margin-bottom:10px;
+    text-align:center;
+}
+
+.message_tile{
+    background: #bbe1fa;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 10px 5px 10px 5px;
+    cursor:pointer;
+    color:black;
+}
+
+.message{
+    margin:20px;
+    background: #bbe1fa;
+}
+.message-title{
+    border-bottom: solid black 1px;
+    padding:10px;
+}
+.message-content{
+    padding:10px;
+}
+.message-date{
+    font-size:90%;
+    text-align:right;
+}
+.message_tile-title{
+
+}
+.message-new{
+    background: #3282b8;
+    font-weight: bold;
+}
+.message-count{
+    text-align:right;
+    font-weight: bold;
+}
+.messages_return{
+    background-color: #0f4c75;
+    color: white;
+    padding:5px;
+    margin-bottom:10px;
+    text-align: center;
+}
+
+.message_button{
+
+    padding:20px;
+    margin:5px;
+    text-align:center;
+    border: 1px solid #3282b8;
+}
+.not-a-button{
+    border: none;
+    background-color: inherit;
+    color: white;
+}
+.not-a-button:hover{
+    color: black;
+    background-color: white;
+}
+
+
+
 /*
 colors:
 #1b262c -> darkest

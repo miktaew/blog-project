@@ -13,8 +13,12 @@
                 <div class="blog-info col-12">
                     <h1>{{blog.display_name}} </h1>
                     <h4>{{blog.description}}</h4>
+                    <div> Blog is being run by: {{blog.owner}}</div>
                 </div>
                 <br><br>
+                <div class="favcount">
+                    Faved by {{ favcount }} users
+                </div>
                 <div class="text-center row align-items-center justify-content-center">
                 {% if request.user.is_authenticated %}
                     {% if blog.name == request.user.blog.name %}
@@ -32,8 +36,10 @@
                         </form>
                     {% endif %}
                     {% endif %}
+
+
                     </div>
-                Faved by {{ favcount }} users
+
                     <br><br><br>
 
                 {% for post in posts %}
@@ -61,22 +67,37 @@
                                 <img class="blog_image" src="/media/{{post.image.image}}">
                                 {% endif %}
                             </div>
-                            {% if post.image_count > 0 %}
+
                             <div class="icon_wrapper">
+                                <div>
+                                    <i class="far fa-comments"></i> {{post.post_count}}
+                                </div>
+                                {% if not blog.name == request.user.blog.name  %}
+                                        {% if post.is_liked %}
+                                            <form method="post" action="post/{{post.post.id}}/unlike/?main=true&page={{page}}">
+                                                {% csrf_token %}
+                                                <button class="not-a-button" type="submit"><i class="fas fa-heart"></i>{{post.like_count}}</button>
+                                            </form>
+                                        {% else %}
+                                            <form method="post" action="post/{{post.post.id}}/like/?main=true&page={{page}}">
+                                                {% csrf_token %}
+                                                <button class="not-a-button" type="submit"><i class="far fa-heart"></i> {{post.like_count}}</button>
+                                            </form>
+                                        {% endif %}
+                                {% else %}
+                                <div>
+                                    <i class="far fa-heart"></i> {{post.like_count}}
+                                </div>
+                                {% endif %}
+
+                                {% if post.image_count > 0 %}
                                 <div>
                                     <i class="far fa-images"></i> {{post.image_count}}
                                 </div>
-                                <div>
-                                    <i class="far fa-comments"></i> {{post.post_count}}
-                                </div>
+                                {% endif %}
+
                             </div>
-                            {% else %}
-                            <div class="icon_wrapper">
-                                <div>
-                                    <i class="far fa-comments"></i> {{post.post_count}}
-                                </div>
-                            </div>
-                            {% endif %}
+
                             <a href="/blogs/{{blog.name}}/post/{{post.post.id}}/">
                                 <div class="read_more">
                                     read more...
@@ -98,7 +119,7 @@
                 {% endif %}
                 {% for page in posts.paginator.page_range %}
                 &nbsp
-                    {% if posts.number == i %}
+                    {% if posts.number == page %}
                 <li class="active"><span> {{ page }} <span class="sr-only"> (current) </span></span></li>
                     {% else %}
                 <li><a href="?page={{ page }}"> {{ page }} </a></li>

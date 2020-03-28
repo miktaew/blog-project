@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
-from blog.models import Blog, Post, Comment, Image
+from blog.models import Blog, Post, Comment, Image, PrivateMessage
 
 
 class BlogForm(forms.ModelForm):
@@ -45,6 +45,12 @@ class BlogForm(forms.ModelForm):
         ]
         widgets = {'owner': forms.HiddenInput()}
 
+    def clean_name(self):
+        return self.cleaned_data.get('name', '').strip()
+
+    def clean_display_name(self):
+        return self.cleaned_data.get('display_name', '').strip()
+
 
 class RawBlogForm(forms.Form):
     name = forms.CharField(
@@ -80,6 +86,12 @@ class RawBlogForm(forms.Form):
         # self.helper.form_class = 'formsClass' # or whatever
         self.helper.form_method = 'post'
         self.helper.add_input(Submit('submit', 'Save blog'))
+
+    def clean_name(self):
+        return self.cleaned_data.get('name', '').strip()
+
+    def clean_display_name(self):
+        return self.cleaned_data.get('display_name', '').strip()
 
 
 class BlogDeactivationForm(forms.Form):
@@ -165,6 +177,9 @@ class BlogNewPostForm(forms.ModelForm):
         ]
         widgets = {'blog': forms.HiddenInput(), 'content': forms.Textarea()}
 
+    def clean_title(self):
+        return self.cleaned_data.get('title', '').strip()
+
 
 class ImageForm(forms.ModelForm):
     image = forms.ImageField(label='Image', required=False)
@@ -194,6 +209,9 @@ class PostUpdateForm(forms.ModelForm):
         ]
         widgets = {"content": forms.Textarea()}
 
+    def clean_title(self):
+        return self.cleaned_data.get('title', '').strip()
+
 
 class DeletePostForm(forms.ModelForm):
     pass
@@ -220,6 +238,9 @@ class BlogUpdateForm(forms.ModelForm):
         ]
         widgets = {'description': forms.Textarea()}
 
+    def clean_display_name(self):
+        return self.cleaned_data.get('display_name', '').strip()
+
 
 class BlogPostCommentForm(forms.ModelForm):
     content = forms.CharField(
@@ -241,6 +262,9 @@ class BlogPostCommentForm(forms.ModelForm):
         widget=forms.HiddenInput(),
     )
 
+    def clean_content(self):
+        return self.cleaned_data.get('content', '').strip()
+
     class Meta:
         model = Comment
         fields = [
@@ -255,6 +279,107 @@ class BlogPostCommentForm(forms.ModelForm):
         }
 
 
+class ParentlessPrivateMessageForm(forms.ModelForm):
+    sender = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        widget=forms.HiddenInput(),
+    )
+
+    receiver = forms.CharField(
+
+    )
+
+    title = forms.CharField(
+
+    )
+
+    content = forms.CharField(
+        widget=forms.Textarea(
+            attrs={"rows": 3},
+        )
+    )
+
+    class Meta:
+        model = PrivateMessage
+        fields = [
+            'sender',
+            'receiver',
+            'title',
+            'content',
+        ]
+        widgets = {
+            'sender': forms.HiddenInput(),
+        }
+
+    def clean_content(self):
+        return self.cleaned_data.get('content', '').strip()
+
+    def clean_title(self):
+        return self.cleaned_data.get('title', '').strip()
+
+    def clean_receiver(self):
+        receiver = self.cleaned_data['receiver']
+
+        if User.objects.filter(username__iexact=receiver):
+            receiver = User.objects.filter(username__iexact=receiver)[0]
+            valid = True
+        else:
+            valid = False
+
+        if not valid:
+            raise forms.ValidationError('Invalid receiver name')
+
+        return receiver
+
+
+class PrivateMessageForm(forms.ModelForm):
+    sender = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        widget=forms.HiddenInput(),
+    )
+
+    receiver = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        widget=forms.HiddenInput(),
+    )
+
+    title = forms.CharField(
+
+    )
+
+    content = forms.CharField(
+        widget=forms.Textarea(
+            attrs={"rows": 3},
+        )
+    )
+
+    parent = forms.ModelChoiceField(
+        queryset=PrivateMessage.objects.filter(parent=None),
+        widget=forms.HiddenInput()
+    )
+
+    class Meta:
+        model = PrivateMessage
+        fields = [
+            'sender',
+            'receiver',
+            'title',
+            'content',
+            'parent',
+        ]
+        widgets = {
+            'sender': forms.HiddenInput(),
+            'receiver': forms.HiddenInput(),
+            'parent': forms.HiddenInput(),
+        }
+
+    def clean_content(self):
+        return self.cleaned_data.get('content', '').strip()
+
+    def clean_title(self):
+        return self.cleaned_data.get('title', '').strip()
+
+
 class CaseInsensitiveUserCreationForm(UserCreationForm):
     def clean(self):
         cleaned_data = super(CaseInsensitiveUserCreationForm, self).clean()
@@ -262,3 +387,5 @@ class CaseInsensitiveUserCreationForm(UserCreationForm):
         if username and User.objects.filter(username__iexact=username).exists():
             self.add_error('username', 'A user with that username already exists.')
         return cleaned_data
+
+

@@ -61,6 +61,10 @@ class Blog(models.Model):  # blogs
         if not self.id:
             self.creation_date = timezone.now()
             self.latest_post_date = self.creation_date
+        if self.name:
+            self.name = self.name.strip()
+        if self.display_name:
+            self.display_name = self.display_name.strip()
         return super(Blog, self).save(*args, **kwargs)
 
 
@@ -69,12 +73,13 @@ class Post(models.Model):  # blog post
     content = models.TextField()
     creation_date = models.DateTimeField()
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='post_blog')
-    likes = models.ManyToManyField(User, related_name='likes_post', default=0)
 
     def save(self, *args, **kwargs):
         if not self.id:
             self.creation_date = timezone.now()
             Blog.objects.filter(pk=self.blog.id).update(latest_post_date=self.creation_date)
+        if self.title:
+            self.title = self.title.strip()
         return super(Post, self).save(*args, **kwargs)
 
     def get_image_filename(self, filename):
@@ -97,6 +102,53 @@ class Comment(models.Model):  # comments on articles
     def __str__(self):
         return f'{self.author}: {self.content}'
 
+    def save(self, *args, **kwargs):
+        if self.content:
+            self.content = self.content.strip()
+        return super(Comment, self).save(*args, **kwargs)
+
+
+class PrivateMessage(models.Model):
+    creation_date = models.DateTimeField()
+    read = models.BooleanField(default=False)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
+    hidden_by_sender = models.BooleanField(default=False)    # instead of deleting by users
+    hidden_by_receiver = models.BooleanField(default=False)  # ^
+    content = models.TextField()
+    title = models.TextField()
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL)
+
+    @staticmethod
+    def get_unread(receiver):
+        m = PrivateMessage.objects.filter(receiver=receiver, read=False, hidden_by_receiver=False)
+        return list(m)
+
+    @staticmethod
+    def remove_all_from(sender):
+        try:
+            PrivateMessage.objects.filter(sender=sender, hidden_by_receiver=False).update(hidden_by_receiver=True)
+        except Exception:
+            return False
+        return True
+
+    def __str__(self):
+        return f'{self.sender} to {self.receiver}: {self.title}'
+
+    def save(self, *args, **kwargs):
+
+        if self.parent:
+            while self.parent.parent:
+                self.parent = self.parent.parent
+
+        if not self.id:
+            self.creation_date = timezone.now()
+        if self.title:
+            self.title = self.title.strip()
+        if self.content:
+            self.content = self.content.strip()
+        return super(PrivateMessage, self).save(*args, **kwargs)
+
 
 class LastVisit(models.Model):
     date = models.DateTimeField()
@@ -107,3 +159,8 @@ class LastVisit(models.Model):
 class FavouriteBlogs(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_favs')
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='blog_favs')
+
+
+class LikedPosts(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_likes')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post_likes')

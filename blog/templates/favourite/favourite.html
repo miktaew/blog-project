@@ -66,7 +66,7 @@ Your favourite blogs
         {% endif %}
         {% for page in fav_blogs.paginator.page_range %}
         &nbsp
-        {% if fav_blogs.number == i %}
+        {% if fav_blogs.number == page %}
         <li class="active"><span> {{ page }} <span class="sr-only"> (current) </span></span></li>
         {% else %}
         <li><a href="?page={{ page }}&sorting_order={{sorting_order}}"> {{ page }} </a></li>

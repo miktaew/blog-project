@@ -2,7 +2,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import PageNotAnInteger, EmptyPage, Paginator
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.forms import modelformset_factory
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
@@ -13,8 +13,9 @@ from django.utils import timezone
 
 from blog import misc
 from blog.forms import BlogForm, RawBlogForm, BlogDeactivationForm, BlogReactivationForm, BlogNewPostForm, \
-    PostUpdateForm, BlogUpdateForm, BlogPostCommentForm, ImageForm, CaseInsensitiveUserCreationForm
-from blog.models import Blog, Post, Comment, Image, LastVisit, FavouriteBlogs
+    PostUpdateForm, BlogUpdateForm, BlogPostCommentForm, ImageForm, CaseInsensitiveUserCreationForm, PrivateMessageForm, \
+    ParentlessPrivateMessageForm
+from blog.models import Blog, Post, Comment, Image, LastVisit, FavouriteBlogs, PrivateMessage, LikedPosts
 
 
 def index(request):
@@ -64,16 +65,27 @@ def blog(request, blog_name):
                     post_count = post.comments.all().count()
                 except IndexError:
                     post_count = 0
-                image = post.images.all()[0]
-                image_count = post.images.all().count()
-                content.append({'post': post, 'image': image, 'image_count': image_count, 'post_count': post_count})
-            except IndexError:
-                content.append({'post': post, 'image': None, 'image_count': 0, 'post_count': post_count})
+
+                try:
+                    image = post.images.all()[0]
+                    image_count = post.images.all().count()
+                except IndexError:
+                    image = None
+                    image_count = 0
+
+                try:
+                    like_count = post.post_likes.all().count()
+                except IndexError:
+                    like_count = 0
+
+                is_liked = LikedPosts.objects.filter(post=Post.objects.get(id=post.id), user=request.user).exists()
+
+                content.append({'post': post, 'image': image, 'image_count': image_count, 'post_count': post_count, 'like_count': like_count, 'is_liked': is_liked})
             except Exception:
                 continue
 
         favcount = Blog.get_blog_favcount(blog_name)
-        print(favcount)
+
         page = request.GET.get('page', 1)
         paginator = Paginator(content, 10)
         try:
@@ -197,6 +209,41 @@ def remove_from_favs(request, blog_name):
 
 
 @login_required
+def like_post(request, blog_name, post_id):
+    try:
+        if request.method == "POST":
+            post = Post.objects.get(id=post_id)
+            if not LikedPosts.objects.filter(user=request.user, post=post).exists():
+                like = LikedPosts(user=request.user, post=post)
+                like.save()
+
+            if request.GET.get("main") == 'true':
+                return redirect(f"/blogs/{blog_name}?page={request.get.GET('page')}/")
+            else:
+                return redirect(f"/blogs/{blog_name}/post/{post_id}/")
+    except Exception as e:
+        print(e)
+        return redirect(f"/blogs/{blog_name}/")
+
+
+@login_required
+def remove_from_likes(request, blog_name, post_id):
+    try:
+        if request.method == "POST":
+            post = Post.objects.get(id=post_id)
+            like = LikedPosts.objects.get(user=request.user, post=post)
+            like.delete()
+
+        if request.GET.get("main") == 'true':
+            return redirect(f"/blogs/{blog_name}?page={request.get.GET('page')}/")
+        else:
+            return redirect(f"/blogs/{blog_name}/post/{post_id}/")
+    except Exception as e:
+        print(e)
+        return redirect(f"/blogs/{blog_name}/")
+
+
+@login_required
 def update_post_view(request, post_id):
     try:
         post = Post.objects.get(id=post_id)
@@ -257,6 +304,17 @@ def blog_view_post(request, post_id, blog_name):
     post = Post.objects.get(id=post_id)
     comments = post.comments.all().order_by('-id')
     images = post.images.all()
+
+    context = {'post': post, 'images': images}
+
+    try:
+        LikedPosts.objects.get(user=request.user, post=Post.objects.get(id=post_id))
+        is_liked = True
+    except LikedPosts.DoesNotExist:
+        is_liked = False
+    except TypeError:
+        is_liked = False
+
     if request.user:
         if request.method == 'POST':
             post_comment_form = BlogPostCommentForm(request.POST,
@@ -273,10 +331,162 @@ def blog_view_post(request, post_id, blog_name):
         else:
             post_comment_form = BlogPostCommentForm(initial={"commented_post": post.id, "author": request.user.id},
                                                     prefix='comment')
-        context = {'post_comment_form': post_comment_form, 'post': post, 'comments': comments, 'images': images}
-    else:
-        context = {'post': post, 'comments': comments, 'images': images}
+        context['post_comment_form'] = post_comment_form
+        context['images'] = images
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(comments, 20)
+
+    try:
+        comment_list = paginator.page(page)
+    except PageNotAnInteger:
+        comment_list = paginator.page(1)
+    except EmptyPage:
+        comment_list = paginator.page(paginator.num_pages)
+
+    context['like_count'] = LikedPosts.objects.filter(post=post).count()
+    context['comments'] = comment_list
+    context['is_liked'] = is_liked
+
     return render(request, 'blog/blog_view_post.html', context)
+
+
+class PrivateMessages(object):
+    pass
+
+
+@login_required
+def private_messages_view(request):
+    # all messages from/to current user
+    all_messages = PrivateMessage.objects.filter(Q(receiver=request.user) | Q(sender=request.user))
+
+    # takes parent id from messages with parent
+    parents = all_messages.exclude(parent=None).values('parent__id').distinct()
+    # removes parents from queryset, only non-parents remain
+    nonparent_messages = all_messages.exclude(id__in=parents)
+
+    # first group - have no parent AND are not a parent
+    solo_messages = nonparent_messages.filter(parent=None)
+
+    # second group - newest from each conversation
+    nonsolo_list = []
+    for parent in parents:
+        newest = all_messages.filter(parent=parent['parent__id']).order_by('-creation_date')[0]  # powinno dzialac?
+        count = all_messages.filter(parent=parent['parent__id']).count()
+        nonsolo_list.append({'message': newest, 'count': count})
+
+    solo_list = []
+    for message in solo_messages:
+        solo_list.append({'message': message})
+
+    message_list = solo_list + nonsolo_list
+
+    # sorting by creation date
+
+    ordering = request.GET.get('sorting_order')
+
+    if ordering == 'oldest':
+        message_list.sort(key=misc.private_message_date)
+
+    elif ordering == 'newest':
+        message_list.sort(key=misc.private_message_date, reverse=True)
+
+    elif ordering == 'new_unread':
+        message_list = misc.private_message_unread_new_sort(request, message_list)
+
+    elif ordering == 'old_unread':
+        message_list = misc.private_message_unread_old_sort(request, message_list)
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(message_list, 20)
+
+    try:
+        messages = paginator.page(page)
+    except PageNotAnInteger:
+        messages = paginator.page(1)
+    except EmptyPage:
+        messages = paginator.page(paginator.num_pages)
+
+    context = {"messages": messages, 'sorting_order': ordering}
+
+    return render(request, 'messaging/messages.html', context)
+
+
+@login_required
+def private_message_view(request, message_id):
+    try:
+        PrivateMessage.objects.filter(pk=message_id, receiver=request.user).update(read=True)
+        if PrivateMessage.objects.get(pk=message_id).parent:
+            parent = PrivateMessage.objects.get(pk=message_id).parent
+            title = PrivateMessage.objects.get(pk=parent.id).title
+            messages = PrivateMessage.objects.filter(parent=parent) | PrivateMessage.objects.filter(pk=parent.id)
+            messages.filter(read=False, receiver=request.user).update(read=True)
+            messages = messages.order_by('-creation_date')
+
+        else:
+            parent = PrivateMessage.objects.get(pk=message_id)
+            messages = PrivateMessage.objects.filter(pk=message_id) | PrivateMessage.objects.filter(parent=message_id)
+            title = PrivateMessage.objects.get(pk=message_id).title
+
+        if PrivateMessage.objects.get(pk=message_id).receiver == request.user:
+            receiver = PrivateMessage.objects.get(pk=message_id).sender
+        else:
+            receiver = PrivateMessage.objects.get(pk=message_id).receiver
+
+        if request.method == 'POST':
+
+            private_message_form = PrivateMessageForm(request.POST,
+                                                      initial={"sender": request.user.id, "receiver": receiver.id,
+                                                               "title": f"Re: {title}", "parent": parent.id})
+            if private_message_form.is_valid():
+                private_message_form.save()
+                private_message_form = PrivateMessageForm()
+                return redirect(f"/messages/{message_id}/")
+
+            else:
+                print(private_message_form.errors)
+
+        else:
+            private_message_form = PrivateMessageForm(initial={"sender": request.user.id, "receiver": receiver.id, "title": f"Re: {title}", "parent": parent.id})
+
+        messages = messages.order_by('-creation_date')
+
+        # print(messages)
+
+        page = request.GET.get('page', 1)
+        paginator = Paginator(messages, 10)
+
+        try:
+            message_list = paginator.page(page)
+        except PageNotAnInteger:
+            message_list = paginator.page(1)
+        except EmptyPage:
+            message_list = paginator.page(paginator.num_pages)
+
+        context = {'messages': message_list, 'private_message_form': private_message_form}
+        return render(request, 'messaging/message.html', context)
+
+    except PrivateMessage.DoesNotExist:
+        return redirect("/messages/")
+
+
+@login_required
+def new_private_message_view(request):
+    if request.method == 'POST':
+        private_message_form = ParentlessPrivateMessageForm(request.POST,initial={"sender": request.user.id})
+        if private_message_form.is_valid():
+            private_message_form.save()
+            private_message_form = PrivateMessageForm()
+            return redirect(f"/messages/")
+
+        else:
+            print(private_message_form.errors)
+
+    else:
+        private_message_form = ParentlessPrivateMessageForm(initial={"sender": request.user.id})
+
+    context = {"private_message_form": private_message_form}
+    return render(request, 'messaging/message_create.html', context)
 
 
 @login_required
@@ -298,8 +508,7 @@ def favs_list_view(request):
         res = misc.favs_adv_sort(res)
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(res, 20)
-
+    paginator = Paginator(res, 5)
 
     try:
         fav_blogs = paginator.page(page)
@@ -308,7 +517,7 @@ def favs_list_view(request):
     except EmptyPage:
         fav_blogs = paginator.page(paginator.num_pages)
 
-    context = {'fav_blogs': fav_blogs, 'sorting_order': ordering,}
+    context = {'fav_blogs': fav_blogs, 'sorting_order': ordering}
     return render(request, 'favourite/favourite.html', context)
 
 

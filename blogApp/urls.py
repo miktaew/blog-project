@@ -22,7 +22,12 @@ urlpatterns = [
     path('create/', views.create_blog_view, name='blog_create'),
     path('signup/', views.SignUp.as_view(), name='signup'),
     path('favourite/', views.favs_list_view, name='favourite'),
-
+    path('messages/', views.private_messages_view, name='private_messages'),
+    path('messages/create/', views.new_private_message_view, name='new_message'),
+    path('messages/<message_id>/', views.private_message_view, name='private_message'),
+    path('blog/post/like/<post_id>/', views.like_post, name='like_post'),
+    path('blogs/<blog_name>/post/<post_id>/like/', views.like_post, name='post_like'),
+    path('blogs/<blog_name>/post/<post_id>/unlike/', views.remove_from_likes, name='post_unlike'),
     re_path(r'^.*/$', RedirectView.as_view(pattern_name="main_page", permanent=False)),
     # redirects everything else to the main page
 ]

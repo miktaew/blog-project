@@ -1,0 +1,68 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+
+
+    {% block head %}
+        {% if not request.user == messages.0.receiver and not request.user == messages.0.sender %}
+            <meta http-equiv="refresh" content="0; url='/'" />
+        {% endif %}
+    {% endblock %}
+
+    {% block title %}
+        {{message.title}}
+    {% endblock %}
+
+    {% block content %}
+    <div class="col-12 messages_return"> <a href="/messages/" style="color:inherit;" class="stretched-link">Return to the inbox</a></div>
+    <div class="text-center row align-items-center justify-content-center">
+        <form method="post" name="private_message_form" class="col-sm-12 col-md-8 col-lg-6">
+            {% csrf_token %}
+            {{private_message_form|crispy}}
+            <input type="submit" value="Send"/>
+        </form>
+    </div>
+    {% for message in messages %}
+    <div class="row">
+        <div class="message col-11 {% if message.sender == request.user %} offset-1 {% endif %}">
+            <div class="row col-12 message-title">
+                <div class="col-4 col-md-3 col-xl-2">
+                    {{ message.sender }}
+                </div>
+                <div class="col-8 col-md-9 col-xl-10">
+                    {{ message.title }}
+                </div>
+            </div>
+            <div class="message-content">
+                {{message.content}}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% if messages.has_other_pages %}
+<div class="text-center row align-items-center justify-content-center">
+    <ul class="pagination">
+        {% if messages.has_previous %}
+        <li><a href="?page={{ messages.previous_page_number }}"><i class="fas fa-chevron-left"></i></a></li>
+        {% else %}
+        <li class="disable"><span></span><i class="fas fa-chevron-left"></i></li>
+        {% endif %}
+        {% for page in messages.paginator.page_range %}
+        &nbsp
+        {% if messages.number == page %}
+        <li class="active"><span> {{ page }} <span class="sr-only"> (current) </span></span></li>
+        {% else %}
+        <li><a href="?page={{ page }}"> {{ page }} </a></li>
+        {% endif %}
+        &nbsp
+        {% endfor %}
+        {% if messages.has_next %}
+        <li><a href="?page={{ messages.next_page_number }}"><i class="fas fa-chevron-right"></i></a></li>
+        {% else %}
+        <li class="disable"><span><i class="fas fa-chevron-right"></i></span></li>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}
+
+    {% endblock %}

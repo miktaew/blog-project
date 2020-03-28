@@ -1,0 +1,16 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+
+    {% block title %}
+        Create new message
+    {% endblock %}
+
+    {% block content %}
+
+        <form method="post" name="private_message_form" class="col-sm-12 col-md-8 col-lg-6">
+            {% csrf_token %}
+            {{private_message_form|crispy}}
+            <input type="submit" value="Send"/>
+        </form>
+
+    {% endblock %}
