@@ -258,6 +258,12 @@ a.button {
     background-color: white;
 }
 
+.black_line {
+ border-bottom: 1px solid black;
+ margin-bottom: 15px;
+ margin-top: 15px;
+}
+
 
 
 /*

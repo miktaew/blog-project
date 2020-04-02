@@ -1,11 +1,11 @@
 {% extends 'base/base.html' %}
 
-    {% block title %}
+{% block title %}
     {{blog.display_name}}
-    {% endblock %}
+{% endblock %}
 
-    {% block content %}
-    {% if not blog.active %}
+{% block content %}
+{% if not blog.active %}
         <h2> <strong>Blog has been deactivated!</strong></h2>
     {% else %}
         <div class="container">
@@ -20,29 +20,55 @@
                     Faved by {{ favcount }} users
                 </div>
                 <div class="text-center row align-items-center justify-content-center">
+
                 {% if request.user.is_authenticated %}
                     {% if blog.name == request.user.blog.name %}
                         <a href="/blog/post/create/" target="none"><button>Create new post</button></a>
 
-                    {% elif not is_faved %}
-                        <form method="post" action="add_to_favourites/">
-                            {% csrf_token %}
-                            <button type="submit">Fave <i class="far fa-star"></i> </button>
-                        </form>
                     {% elif is_faved %}
                         <form method="post" action="remove_from_favourites/">
                             {% csrf_token %}
                             <button type="submit">Unfave <i class="fas fa-ban"></i> </button>
                         </form>
+
+                    {% else %}
+                        <form method="post" action="add_to_favourites/">
+                            {% csrf_token %}
+                            <button type="submit">Fave <i class="far fa-star"></i> </button>
+                        </form>
                     {% endif %}
-                    {% endif %}
+                {% endif %}
 
 
                     </div>
 
-                    <br><br><br>
+                    <br>
+                <div class="col-12 black_line"></div>
+
+                <div class="text-center row align-items-center justify-content-center">
+                    Sort by:
+                    <div style="margin:10px;">
+                        <a href="?sorting_order=newest">
+                            <button> Newest </button>
+                        </a>
+                    </div>
+
+                    <div style="margin:10px;">
+                        <a href="?sorting_order=oldest">
+                            <button> Oldest </button>
+                        </a>
+                    </div>
+                    <div style="margin:10px;">
+                        <a href="?sorting_order=best">
+                            <button> Best </button>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-12 black_line"></div>
 
                 {% for post in posts %}
+
                     <div class="text-center align-items-center justify-content-center blog-item" style="margin-bottom:20px;">
 
                         <div class="blog_post col-12" style="max-height:inherit">
@@ -113,7 +139,7 @@
             <div class="text-center row align-items-center justify-content-center">
             <ul class="pagination">
                 {% if posts.has_previous %}
-                <li><a href="?page={{posts.previous_page_number}}"><i class="fas fa-chevron-left"></i></a></li>
+                <li><a href="?page={{posts.previous_page_number}}&sorting_order={{sorting_order}}"><i class="fas fa-chevron-left"></i></a></li>
                 {% else %}
                 <li class="disable"><span></span><i class="fas fa-chevron-left"></i></li>
                 {% endif %}
@@ -122,12 +148,12 @@
                     {% if posts.number == page %}
                 <li class="active"><span> {{ page }} <span class="sr-only"> (current) </span></span></li>
                     {% else %}
-                <li><a href="?page={{ page }}"> {{ page }} </a></li>
+                <li><a href="?page={{ page }}&sorting_order={{sorting_order}}"> {{ page }} </a></li>
                     {% endif %}
                 &nbsp
                 {% endfor %}
                 {% if posts.has_next %}
-                    <li><a href="?page={{ posts.next_page_number }}"><i class="fas fa-chevron-right"></i></a></li>
+                    <li><a href="?page={{ posts.next_page_number }}&sorting_order={{sorting_order}}"><i class="fas fa-chevron-right"></i></a></li>
                 {% else %}
                     <li class="disable"><span><i class="fas fa-chevron-right"></i></span></li>
                 {% endif %}

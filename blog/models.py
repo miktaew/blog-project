@@ -150,6 +150,18 @@ class PrivateMessage(models.Model):
         return super(PrivateMessage, self).save(*args, **kwargs)
 
 
+class Topic(models.Model):
+    name = models.TextField()
+
+    def __str__(self):
+        return f'{self.name}'
+
+
+class BlogTopics(models.Model):
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='topic_blogs')
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='blog_topics')
+
+
 class LastVisit(models.Model):
     date = models.DateTimeField()
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='visits')

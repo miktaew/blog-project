@@ -37,25 +37,30 @@ def create_blog_view(request):
 
 def blog(request, blog_name):
     requested_blog = Blog.get_blog_by_name(blog_name)
+    context = {}
+
     if requested_blog:
 
-        try:
-            last_visit = LastVisit.objects.get(user=request.user, blog=requested_blog)
-            last_visit.date = timezone.now()
-            last_visit.save()
-        except LastVisit.DoesNotExist:
-            last_visit = LastVisit(user=request.user, blog=requested_blog, date=timezone.now())
-            last_visit.save()
-        except TypeError:
-            pass
+        if request.user.is_authenticated:
+            try:
+                last_visit = LastVisit.objects.get(user=request.user, blog=requested_blog)
+                last_visit.date = timezone.now()
+                last_visit.save()
+            except LastVisit.DoesNotExist:
+                last_visit = LastVisit(user=request.user, blog=requested_blog, date=timezone.now())
+                last_visit.save()
+            except TypeError:
+                pass
 
-        try:
-            FavouriteBlogs.objects.get(user=request.user, blog=requested_blog)
-            is_faved = True
-        except FavouriteBlogs.DoesNotExist:
-            is_faved = False
-        except TypeError:
-            is_faved = False
+            try:
+                FavouriteBlogs.objects.get(user=request.user, blog=requested_blog)
+                is_faved = True
+            except FavouriteBlogs.DoesNotExist:
+                is_faved = False
+            except TypeError:
+                is_faved = False
+
+            context['is_faved'] = is_faved
 
         posts_list = Blog.get_blog_posts(blog_name)
         content = []
@@ -78,13 +83,29 @@ def blog(request, blog_name):
                 except IndexError:
                     like_count = 0
 
-                is_liked = LikedPosts.objects.filter(post=Post.objects.get(id=post.id), user=request.user).exists()
+                if request.user.is_authenticated:
+                    is_liked = LikedPosts.objects.filter(post=Post.objects.get(id=post.id), user=request.user).exists()
+                else:
+                    is_liked = False
 
                 content.append({'post': post, 'image': image, 'image_count': image_count, 'post_count': post_count, 'like_count': like_count, 'is_liked': is_liked})
-            except Exception:
+            except Exception as e:
+                print(e)
                 continue
 
         favcount = Blog.get_blog_favcount(blog_name)
+
+        ordering = request.GET.get('sorting_order')
+        # print("ordering: " + ordering)
+
+        if ordering == 'newest' or ordering is None:
+            content.sort(key=lambda post: post['post'].creation_date, reverse=True)
+
+        elif ordering == 'oldest':
+            content.sort(key=lambda post: post['post'].creation_date)
+
+        elif ordering == 'best':
+            content.sort(key=lambda post: post['like_count'], reverse=True)
 
         page = request.GET.get('page', 1)
         paginator = Paginator(content, 10)
@@ -95,7 +116,7 @@ def blog(request, blog_name):
         except EmptyPage:
             posts = paginator.page(paginator.num_pages)
 
-        context = {"blog": requested_blog, "posts": posts, 'is_faved': is_faved, 'favcount': favcount}
+        context.update({"blog": requested_blog, "posts": posts, 'favcount': favcount, 'sorting_order': ordering})
         return render(request, 'blog/blog.html', context)
     else:
         return redirect('/')
@@ -179,7 +200,8 @@ def delete_post_view(request, post_id):
             post.delete()
             images.delete()
         return redirect(f"/blogs/{request.user.blog.name}/")
-    except Exception:
+    except Exception as e:
+        print(e)
         return redirect('/')
 
 
@@ -191,7 +213,8 @@ def add_to_favs(request, blog_name):
             if not FavouriteBlogs.objects.filter(user=request.user, blog=faved_blog).exists():
                 fave = FavouriteBlogs(user=request.user, blog=faved_blog)
                 fave.save()
-    except Exception:
+    except Exception as e:
+        print(e)
         return redirect(f"/blogs/{blog_name}/")
     return redirect(f"/blogs/{blog_name}/")
 
@@ -203,7 +226,8 @@ def remove_from_favs(request, blog_name):
         fave = FavouriteBlogs.objects.get(user=request.user, blog=faved_blog)
         if request.method == "POST":
             fave.delete()
-    except Exception:
+    except Exception as e:
+        print(e)
         return redirect(f"/blogs/{blog_name}/")
     return redirect(f"/blogs/{blog_name}/")
 
@@ -270,8 +294,8 @@ def update_post_view(request, post_id):
                                 photo = Image.objects.get(id=form['id'].id)
                                 photo.delete()
 
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                print(e)
 
                         elif form['id'] is not None:
                             try:
@@ -351,10 +375,6 @@ def blog_view_post(request, post_id, blog_name):
     return render(request, 'blog/blog_view_post.html', context)
 
 
-class PrivateMessages(object):
-    pass
-
-
 @login_required
 def private_messages_view(request):
     # all messages from/to current user
@@ -381,15 +401,14 @@ def private_messages_view(request):
 
     message_list = solo_list + nonsolo_list
 
-    # sorting by creation date
-
     ordering = request.GET.get('sorting_order')
+    # print("ordering: " + ordering)
 
-    if ordering == 'oldest':
-        message_list.sort(key=misc.private_message_date)
-
-    elif ordering == 'newest':
+    if ordering == 'newest' or ordering is None:
         message_list.sort(key=misc.private_message_date, reverse=True)
+
+    elif ordering == 'oldest':
+        message_list.sort(key=misc.private_message_date)
 
     elif ordering == 'new_unread':
         message_list = misc.private_message_unread_new_sort(request, message_list)
