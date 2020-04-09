@@ -1,0 +1,46 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %} Browse blogs {% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="search_options">
+        <form>
+            {% crispy search_form %}
+            <input type="submit" value='Search' id="button"/>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('button').onclick = function() {
+        var form = document.forms[0]
+        var i = 1;
+        var topics = [];
+        while(i<form.length)
+        {
+            if(form.elements[i].type=="checkbox" && form.elements[i].checked==true)
+                topics.push(form.elements[i].value);
+            i++;
+        }
+
+        if(topics.length>3)
+        {
+            for(j=0; j<form.length; j++)
+            {
+                document.forms[0].elements[j].checked=false;
+            }
+            alert("Choose no more than 3 topics");
+            return false;
+        }
+
+        var query = "?order=" + document.getElementById('id_order').value + "&sort_by=" + document.getElementById('id_by').value + "&topics=[" + topics.join() + "]";
+        var url = window.location.href.split('?')[0] + query;
+        window.location.replace(url);
+    }
+
+</script>
+
+{% endblock %}

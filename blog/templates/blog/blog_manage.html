@@ -7,8 +7,8 @@
 {% if blog.active %}
 <div class="row">
         <div class="col-sm-12 col-md-5 description_edition_panel manage_panel">
-            <h4>Change description</h4>
-                <form method="post" name="update">
+            <h4>Edit blog</h4>
+                <form method="post" name="update-description">
                     {% csrf_token %}
                     {{update_blog_form|crispy}}
                     <input type="submit" value="Change" />
@@ -25,6 +25,19 @@
                     {{deactivation_form|crispy}}
 
                     <input type="submit" value="Deactivate" />
+                </form>
+
+            </div>
+        </div>
+
+        <div class="col-sm-12 col-md-5 topics_panel manage_panel">
+
+            <h4>Change the topics of your blog</h4>
+                <form method="post" name="update-topics">
+                    {% csrf_token %}
+                    {{update_topics_form|crispy}}
+
+                    <input type="submit" value="Update" />
                 </form>
 
             </div>

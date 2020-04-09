@@ -1,15 +1,17 @@
 from django import forms
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
+from crispy_forms.layout import Submit, Layout, MultiField, Div, Fieldset
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
-from blog.models import Blog, Post, Comment, Image, PrivateMessage
+from blog.models import Blog, Post, Comment, Image, PrivateMessage, Topic
 
 
 class BlogForm(forms.ModelForm):
+    TOPIC_CHOICES = [[topic.id, topic.name] for topic in Topic.objects.all()]
+
     name = forms.CharField(
         max_length=60,
         required=True,
@@ -30,6 +32,13 @@ class BlogForm(forms.ModelForm):
         help_text="Name of your blog",
         max_length=120
     )
+    topics = forms.MultipleChoiceField(
+        choices=TOPIC_CHOICES,
+        widget=forms.CheckboxSelectMultiple(),
+        required=False,
+        label='Select topics of your blog',
+        help_text='You can change them at any time',
+    )
     owner = forms.ModelChoiceField(
         queryset=User.objects.all(),
         widget=forms.HiddenInput(),
@@ -42,8 +51,12 @@ class BlogForm(forms.ModelForm):
             'description',
             'display_name',
             'owner',
+            'topics',
         ]
-        widgets = {'owner': forms.HiddenInput()}
+        widgets = {
+            'owner': forms.HiddenInput(),
+            'topics': forms.CheckboxSelectMultiple(),
+        }
 
     def clean_name(self):
         return self.cleaned_data.get('name', '').strip()
@@ -97,7 +110,7 @@ class RawBlogForm(forms.Form):
 class BlogDeactivationForm(forms.Form):
     confirm_name = forms.CharField(max_length=120,
                                    required=True,
-                                   help_text="Enter blog name for confirmation",)
+                                   help_text="Enter displayed blog name for confirmation",)
     # No, blog for deletion is not taken from this field, it's just for confirmation
     deactivation_password = forms.CharField(label="Password",
                                             help_text="Confirm password for deactivation",
@@ -220,7 +233,9 @@ class DeletePostForm(forms.ModelForm):
 class BlogUpdateForm(forms.ModelForm):
     description = forms.CharField(
         required=False,
-        widget=forms.Textarea(),
+        widget=forms.Textarea(
+            attrs={"rows":4},
+        ),
         max_length=600,
     )
     display_name = forms.CharField(
@@ -380,6 +395,26 @@ class PrivateMessageForm(forms.ModelForm):
         return self.cleaned_data.get('title', '').strip()
 
 
+class BlogUpdateTopicsForm(forms.ModelForm):
+    TOPIC_CHOICES = [[topic.id, topic.name] for topic in Topic.objects.all()]
+
+    topics = forms.MultipleChoiceField(choices=TOPIC_CHOICES, widget=forms.CheckboxSelectMultiple(),
+                                       required=True, label='')
+
+    class Meta:
+        model = Blog
+        fields = [
+            'topics',
+        ]
+        widgets = {'topics': forms.CheckboxSelectMultiple()}
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        if len(cleaned_data['topics']) > 3:
+            raise forms.ValidationError('You cannot select more than 3 topics!')
+        return cleaned_data
+
+
 class CaseInsensitiveUserCreationForm(UserCreationForm):
     def clean(self):
         cleaned_data = super(CaseInsensitiveUserCreationForm, self).clean()
@@ -388,4 +423,50 @@ class CaseInsensitiveUserCreationForm(UserCreationForm):
             self.add_error('username', 'A user with that username already exists.')
         return cleaned_data
 
+
+class SearchForm(forms.Form):
+    TOPIC_CHOICES = [[topic.id, topic.name] for topic in Topic.objects.all().order_by('name')]
+
+    topics = forms.MultipleChoiceField(choices=TOPIC_CHOICES, widget=forms.CheckboxSelectMultiple(),
+                                       required=False)
+
+    ORDER = [['ascending', 'ascending'], ['descending', 'descending']]
+
+    order = forms.ChoiceField(choices=ORDER, required=True, widget=forms.Select())
+
+    BY = [['creation_date', 'creation_date'], ['favourites', 'favourites'], ['name', 'name']]
+
+    by = forms.ChoiceField(choices=BY, required=True, widget=forms.Select(), label='Sort by')
+
+    class Meta:
+        fields = [
+            'topics',
+            'by',
+            'order',
+        ]
+        widgets = {
+            'topics': forms.CheckboxSelectMultiple(),
+            'order': forms.Select(),
+            'by': forms.Select(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+                Div(
+                    Div(
+                        'topics',
+                        css_class='col-6',
+                    ),
+                    Div(
+                        'by',
+                        'order',
+                        css_class='col-6',
+                    ),
+                    css_class='row'
+                )
+        )
+        super(SearchForm, self).__init__(*args, **kwargs)
+        self.initial['order'] = 'ascending'
+        self.initial['by'] = 'creation_date'
 

@@ -14,8 +14,8 @@ from django.utils import timezone
 from blog import misc
 from blog.forms import BlogForm, RawBlogForm, BlogDeactivationForm, BlogReactivationForm, BlogNewPostForm, \
     PostUpdateForm, BlogUpdateForm, BlogPostCommentForm, ImageForm, CaseInsensitiveUserCreationForm, PrivateMessageForm, \
-    ParentlessPrivateMessageForm
-from blog.models import Blog, Post, Comment, Image, LastVisit, FavouriteBlogs, PrivateMessage, LikedPosts
+    ParentlessPrivateMessageForm, BlogUpdateTopicsForm, SearchForm
+from blog.models import Blog, Post, Comment, Image, LastVisit, FavouriteBlogs, PrivateMessage, LikedPosts, Topic
 
 
 def index(request):
@@ -88,7 +88,8 @@ def blog(request, blog_name):
                 else:
                     is_liked = False
 
-                content.append({'post': post, 'image': image, 'image_count': image_count, 'post_count': post_count, 'like_count': like_count, 'is_liked': is_liked})
+                content.append({'post': post, 'image': image, 'image_count': image_count, 'post_count': post_count,
+                                'like_count': like_count, 'is_liked': is_liked})
             except Exception as e:
                 print(e)
                 continue
@@ -126,12 +127,20 @@ def blog(request, blog_name):
 def manage_blog_view(request):
     blog = Blog.get_blog_by_name(request.user.blog.name)
     print(request.POST)
+
+    blog_topics = [topic['id'] for topic in Topic.objects.filter(blog=blog).values('id')]
+    print(blog_topics)
+
+    deactivation_form = BlogDeactivationForm(user=request.user, prefix='deactivate')
+    reactivation_form = BlogReactivationForm(user=request.user, prefix='reactivate')
+    update_blog_form = BlogUpdateForm(instance=blog, prefix='update-description')
+    update_topics_form = BlogUpdateTopicsForm(instance=blog, prefix='update-topics', initial={'topics': blog_topics})
+
     if request.method == 'POST':
         if any(['deactivate-deactivation_password' in request.POST,
                 'reactivate-reactivation_password' in request.POST]):
             deactivation_form = BlogDeactivationForm(request.POST, user=request.user, prefix='deactivate')
             reactivation_form = BlogReactivationForm(request.POST, user=request.user, prefix='reactivate')
-            update_blog_form = BlogUpdateForm(prefix='update')
 
             if deactivation_form.is_valid():
                 Blog.objects.filter(pk=blog.id).update(active=False)
@@ -142,21 +151,24 @@ def manage_blog_view(request):
                 Blog.objects.filter(pk=blog.id).update(active=True)
                 return redirect(f"/blogs/{blog.name}/")
 
-        elif 'update-description' in request.POST:
-            update_blog_form = BlogUpdateForm(request.POST, instance=blog, prefix='update')
-            deactivation_form = BlogDeactivationForm(user=request.user, prefix='deactivate')
-            reactivation_form = BlogReactivationForm(user=request.user, prefix='reactivate')
+        elif any(['update-description-description' in request.POST,
+                  'update-description-display_name' in request.POST]):
+            update_blog_form = BlogUpdateForm(request.POST, instance=blog, prefix='update-description')
 
+            print(update_blog_form.is_valid())
             if update_blog_form.is_valid():
                 update_blog_form.save()
 
-    else:
-        deactivation_form = BlogDeactivationForm(user=request.user, prefix='deactivate')
-        reactivation_form = BlogReactivationForm(user=request.user, prefix='reactivate')
-        update_blog_form = BlogUpdateForm(instance=blog, prefix='update')
+        elif 'update-topics-topics' in request.POST:
+
+            update_topics_form = BlogUpdateTopicsForm(request.POST, instance=blog, prefix='update-topics', initial={'topics': blog_topics})
+            print(update_topics_form.is_valid())
+            if update_topics_form.is_valid():
+                print(update_topics_form.cleaned_data)
+                update_topics_form.save()
 
     context = {"blog": blog, "deactivation_form": deactivation_form, "reactivation_form": reactivation_form,
-               'update_blog_form': update_blog_form}
+               'update_blog_form': update_blog_form, 'update_topics_form': update_topics_form}
     return render(request, 'blog/blog_manage.html', context)
 
 
@@ -274,7 +286,7 @@ def update_post_view(request, post_id):
         blog = request.user.blog
 
         image_count = Image.objects.filter(post=post_id).count()
-        ImageFormSet = modelformset_factory(Image, form=ImageForm, can_delete=True, extra=3-image_count)
+        ImageFormSet = modelformset_factory(Image, form=ImageForm, can_delete=True, extra=3 - image_count)
 
         image_formset = ImageFormSet(queryset=Image.objects.filter(post=post_id))
         update_post_form = PostUpdateForm(request.POST or None, instance=post)
@@ -385,10 +397,10 @@ def private_messages_view(request):
     # removes parents from queryset, only non-parents remain
     nonparent_messages = all_messages.exclude(id__in=parents)
 
-    # first group - have no parent AND are not a parent
+    # no parent AND are not a parent
     solo_messages = nonparent_messages.filter(parent=None)
 
-    # second group - newest from each conversation
+    # newest from each conversation
     nonsolo_list = []
     for parent in parents:
         newest = all_messages.filter(parent=parent['parent__id']).order_by('-creation_date')[0]  # powinno dzialac?
@@ -406,13 +418,10 @@ def private_messages_view(request):
 
     if ordering == 'newest' or ordering is None:
         message_list.sort(key=misc.private_message_date, reverse=True)
-
     elif ordering == 'oldest':
         message_list.sort(key=misc.private_message_date)
-
     elif ordering == 'new_unread':
         message_list = misc.private_message_unread_new_sort(request, message_list)
-
     elif ordering == 'old_unread':
         message_list = misc.private_message_unread_old_sort(request, message_list)
 
@@ -466,7 +475,9 @@ def private_message_view(request, message_id):
                 print(private_message_form.errors)
 
         else:
-            private_message_form = PrivateMessageForm(initial={"sender": request.user.id, "receiver": receiver.id, "title": f"Re: {title}", "parent": parent.id})
+            private_message_form = PrivateMessageForm(
+                initial={"sender": request.user.id, "receiver": receiver.id, "title": f"Re: {title}",
+                         "parent": parent.id})
 
         messages = messages.order_by('-creation_date')
 
@@ -492,7 +503,7 @@ def private_message_view(request, message_id):
 @login_required
 def new_private_message_view(request):
     if request.method == 'POST':
-        private_message_form = ParentlessPrivateMessageForm(request.POST,initial={"sender": request.user.id})
+        private_message_form = ParentlessPrivateMessageForm(request.POST, initial={"sender": request.user.id})
         if private_message_form.is_valid():
             private_message_form.save()
             private_message_form = PrivateMessageForm()
@@ -538,6 +549,28 @@ def favs_list_view(request):
 
     context = {'fav_blogs': fav_blogs, 'sorting_order': ordering}
     return render(request, 'favourite/favourite.html', context)
+
+
+def search_blogs_view(request):
+    order = request.GET.get('order')
+    sort_by = request.GET.get('sort_by')
+    search_topics = request.GET.get('topics')
+    blogs = []
+
+    if not search_topics or search_topics and len(search_topics) > 3:
+        blogs = Blog.objects.all()
+    elif len(search_topics) == 1:
+        blogs = Blog.objects.filter(topics__contains=search_topics[0])
+    elif len(search_topics) == 2:
+        blogs = Blog.objects.filter(topics__contains=search_topics[0]).filter(topics__contains=search_topics[1])
+    elif len(search_topics) == 3:
+        blogs = Blog.objects.filter(topics__contains=search_topics[0]).filter(topics__contains=search_topics[1])\
+                                                                      .filter(topics__contains=search_topics[2])
+    # print(blogs)
+
+    search_form = SearchForm()
+    context = {'search_form': search_form, 'blogs': blogs}
+    return render(request, 'search/search.html', context)
 
 
 class SignUp(generic.CreateView):

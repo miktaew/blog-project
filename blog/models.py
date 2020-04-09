@@ -8,6 +8,13 @@ from django.template.defaultfilters import slugify
 from django.utils import timezone
 
 
+class Topic(models.Model):
+    name = models.TextField()
+
+    def __str__(self):
+        return f'{self.name} {self.id}'
+
+
 class Blog(models.Model):  # blogs
     name = models.CharField(unique=True, max_length=60)  # this is actually blog URL, not the displayed name
     display_name = models.CharField(max_length=120, default="My Blog")
@@ -16,6 +23,7 @@ class Blog(models.Model):  # blogs
     creation_date = models.DateTimeField(editable=False)
     latest_post_date = models.DateTimeField(default=timezone.now())
     active = models.BooleanField(default=True, blank=False)
+    topics = models.ManyToManyField(Topic, blank=True)
 
     @staticmethod
     def get_blog_by_name(blog_name):
@@ -148,18 +156,6 @@ class PrivateMessage(models.Model):
         if self.content:
             self.content = self.content.strip()
         return super(PrivateMessage, self).save(*args, **kwargs)
-
-
-class Topic(models.Model):
-    name = models.TextField()
-
-    def __str__(self):
-        return f'{self.name}'
-
-
-class BlogTopics(models.Model):
-    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='topic_blogs')
-    blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='blog_topics')
 
 
 class LastVisit(models.Model):
