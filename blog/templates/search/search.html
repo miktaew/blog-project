@@ -3,18 +3,83 @@
 
 {% block title %} Browse blogs {% endblock %}
 
+{% block onload %}
+onload = "onLoadFunction()"
+{% endblock %}
+
 {% block content %}
 
 <div class="row">
-    <div class="search_options">
+    <div class="search_options col-xl-4 col-md-6 col-12">
         <form>
             {% crispy search_form %}
             <input type="submit" value='Search' id="button"/>
         </form>
     </div>
+    <div class="found_blogs col-xl-8 col-md-6 col12">
+        {% for blog in blogs %}
+            <div class="found_blog col-12">
+                <div class="found_blog_name">{{blog.blog.name}}</div>
+                <div class="found_blog_topics">
+                    {% for topic in blog.blog.topics.all %}
+                    {{topic.name}};
+                    {% endfor %}
+                </div>
+                <div class="found_blog_description">{{blog.blog.description}}</div>
+                <div class="found_blog_favs">
+                    Faved by {{blog.favcount}}
+                    {% if blog.favcount == 1 %}
+                    user
+                    {% else %}
+                    users
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+
+    </div>
 </div>
 
-<script>
+
+<script type="text/javascript">
+
+    onLoadFunction = function()
+    {
+        var searchQuery = window.location.href.split('?')[1];
+        var searchParams = searchQuery.split('&');
+        console.log(searchParams);
+
+        for(i=0; i<searchParams.length; i++)
+        {
+            if(searchParams[i].split("=")[0].localeCompare("order")==0)
+            {
+                var order = searchParams[i].split("=")[1];
+                document.querySelector('#id_order').value = order;
+
+            }
+            else if(searchParams[i].split("=")[0].localeCompare("sort_by")==0)
+            {
+                var sortBy = searchParams[i].split("=")[1];
+                document.querySelector('#id_by').value = sortBy;
+            }
+            else if(searchParams[i].split("=")[0].localeCompare("topics")==0)
+            {
+                var topics = searchParams[i].split("=")[1].split(",");
+                var checkBoxes = document.getElementsByName("topics");
+                console.log(topics);
+
+                for(j=0; j<checkBoxes.length; j++)
+                {
+                    for(k=0; k<topics.length; k++)
+                    {
+                        if(checkBoxes[j].value == topics[k])
+                            checkBoxes[j].checked = true;
+                    }
+                }
+            }
+        }
+    }
+
     document.getElementById('button').onclick = function() {
         var form = document.forms[0]
         var i = 1;
@@ -35,11 +100,12 @@
             alert("Choose no more than 3 topics");
             return false;
         }
-
-        var query = "?order=" + document.getElementById('id_order').value + "&sort_by=" + document.getElementById('id_by').value + "&topics=[" + topics.join() + "]";
+        var query = "?order=" + document.getElementById('id_order').value + "&sort_by=" + document.getElementById('id_by').value + "&topics=" + topics.join();
         var url = window.location.href.split('?')[0] + query;
         window.location.replace(url);
     }
+
+
 
 </script>
 

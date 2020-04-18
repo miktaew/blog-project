@@ -268,7 +268,14 @@ a.button {
     max-width: 350px;
     min-width: 350px;
 }
-
+.found_blog{
+    background-color: #bbe1fa;
+    margin:5px;
+    border: 2px solid #3282b8;
+}
+.found_blog_description{
+    font-style:italic;
+}
 
 
 /*

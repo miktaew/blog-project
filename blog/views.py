@@ -526,9 +526,9 @@ def favs_list_view(request):
     for fav in favs:
         tmp = LastVisit.objects.get(user=request.user, blog=fav.blog)
         # print(tmp)
-        count = Post.objects.filter(blog=fav.blog, creation_date__gte=tmp.date).count()
+        new_count = Post.objects.filter(blog=fav.blog, creation_date__gte=tmp.date).count()
         # print(count)
-        res.append({"blog": fav.blog, "count": count})
+        res.append({"blog": fav.blog, "new_count": new_count})
 
     ordering = request.GET.get('sorting_order')
     if ordering == 'new_count':
@@ -552,24 +552,43 @@ def favs_list_view(request):
 
 
 def search_blogs_view(request):
-    order = request.GET.get('order')
-    sort_by = request.GET.get('sort_by')
-    search_topics = request.GET.get('topics')
-    blogs = []
+    search_form = SearchForm()
+    context = {'search_form': search_form}
+
+    if request.GET.get('topics'):
+        try:
+            search_topics = [int(topic) for topic in request.GET.get('topics').split(',')]
+        except ValueError:
+            return redirect('/search/')
+    else:
+        search_topics = None
 
     if not search_topics or search_topics and len(search_topics) > 3:
-        blogs = Blog.objects.all()
+        found = Blog.objects.all()
     elif len(search_topics) == 1:
-        blogs = Blog.objects.filter(topics__contains=search_topics[0])
+        found = Blog.objects.filter(topics__id=search_topics[0])
     elif len(search_topics) == 2:
-        blogs = Blog.objects.filter(topics__contains=search_topics[0]).filter(topics__contains=search_topics[1])
+        found = Blog.objects.filter(topics__id=search_topics[0]).filter(topics__id=search_topics[1])
     elif len(search_topics) == 3:
-        blogs = Blog.objects.filter(topics__contains=search_topics[0]).filter(topics__contains=search_topics[1])\
-                                                                      .filter(topics__contains=search_topics[2])
-    # print(blogs)
+        found = Blog.objects.filter(topics__id=search_topics[0]).filter(topics__id=search_topics[1])\
+                                                                      .filter(topics__id=search_topics[2])
 
-    search_form = SearchForm()
-    context = {'search_form': search_form, 'blogs': blogs}
+    blogs = [{"blog": blog, "favcount": Blog.get_blog_favcount(blog)} for blog in found]
+
+    if request.GET.get('order') == "descending":
+        reverse = True
+    elif request.GET.get('order') == "ascending":
+        reverse = False
+
+    if request.GET.get('sort_by') == "favourites":
+        sort_by = "favcount"
+        blogs = sorted(blogs, key=lambda blog: blog["favcount"], reverse=reverse)
+    elif request.GET.get('sort_by') == "name":
+        blogs = sorted(blogs, key=lambda blog: blog["blog"].display_name.lower(), reverse=reverse)
+    elif request.GET.get('sort_by') == "creation_date":
+        blogs = sorted(blogs, key=lambda blog: blog["blog"].creation_date, reverse=reverse)
+
+    context['blogs'] = blogs
     return render(request, 'search/search.html', context)
 
 

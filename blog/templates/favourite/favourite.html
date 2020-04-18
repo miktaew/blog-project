@@ -28,21 +28,26 @@ Your favourite blogs
     {% with loopcount=0 %}
     {% for fav in fav_blogs %}
 
-    <div class="col-5" style="margin-left:10px;">
+    <div class="col-md-5 col-12" style="margin-left:10px;">
 
         <a href="/blogs/{{fav.blog}}/" style="color:black" class="stretched-link">
-            {% if fav.count > 0 %}
+            {% if fav.new_count > 0 %}
             <div class="fave-pane fave-pane-new row">
-                <div class="col-11">
+                <div class="col-8">
                     {{fav.blog}}
                 </div>
-                <div class="col-1 count-block">
-                    {{fav.count}}
+                <div class="col-4 count-block">
+                    {{fav.new_count}}
+                    {% if fav.new_count == 1 %}
+                    new post
+                    {% else %}
+                    new posts
+                    {% endif %}
                 </div>
             </div>
              {% else %}
             <div class="fave-pane row">
-                <div class="col-11">
+                <div class="col-8">
                     {{fav.blog}}
                 </div>
             </div>
