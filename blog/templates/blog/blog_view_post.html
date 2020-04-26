@@ -67,7 +67,7 @@
 {% endif %}
 
 {% for comment in comments %}
-<div class="text-center row align-items-center justify-content-center">
+<div class="text-center row align-items-center justify-content-center" id="post_comments">
     <div class="comment_pane col-bg-6 col-md-8 col-12">
         {% if comment.author == post.blog.owner %}
         <strong style="color:blue">{{comment.author}}</strong><br>

@@ -2,58 +2,118 @@
 
     {% block title %} Blogging App {% endblock %}
 
+    {% block onload %}
+    onload = "onLoadFunction()"
+    {% endblock %}
+
     {% block content %}
         <div class="col-12 app-info">
             <h5> Welcome to blogApp </h5>
-            If you want to start your own blog, all you need to do is
+            If you want to start your own blog, all that is needed is
             <a href="{% url 'login' %}?next={{request.path}}"style="color:white;"> signing up </a>
             <br>
             You can also try to find something interesting on lists below
 
         </div>
         <br><br>
-        <div class="row">
-            <div class="col-md-5 col-12 top-blog-list">
-                <br>
-                <h4> <strong>Most popular blogs on our site</strong> </h4>
-                <br>
-                {% for blog in top_blogs %}
-                    <div>
-                        <a href="/blogs/{{blog.name}}/" target="_blank">
-                            <div class="blog-tile row">
-                                <div class="col-bg-10 col-9">
-                                    <br>
-                                    <h6>{{blog.display_name}}</h6>
-                                    </div>
-                                <div class="col-bg-2 col-3"><br>
-                                    {{blog.faves}}
-                                    <i class="far fa-star"></i>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                {% endfor %}
-            </div>
-
-            <div class="col-2">
-            </div>
-
-            <div class="col-md-5 col-12 new-blog-list">
-                <br>
-                <h4> <strong>Newest blogs on our site</strong> </h4>
-                <br>
-                {% for blog in new_blogs %}
-                <div>
-                    <a href="/blogs/{{blog.name}}/" target="_blank">
-                        <div class="blog-tile row">
-                            <div class="col-12">
-                            <br>
-                            <h6>{{blog.display_name}}</h6>
-                                </div>
-                        </div>
-                    </a>
-                </div>
-                {% endfor %}
-            </div>
+        <div class="text-center row align-items-center justify-content-center">
+        Most popular posts from: &nbsp
+            <a href="?range=24h" target="none" style="display:block"><div class="post_range_button" id="button_24h">24h</div></a>
+            <a href="?range=7d" target="none" style="display:block"><div class="post_range_button" id="button_7d">7d</div></a>
+            <a href="?range=30d" target="none" style="display:block"><div class="post_range_button" id="button_30d">30d</div></a>
+            <a href="?range=1y" target="none" style="display:block"><div class="post_range_button" id="button_1y">1y</div></a>
+            <a href="?range=ever" target="none" style="display:block"><div class="post_range_button" id="button_ever">ever</div></a>
         </div>
+
+    {% for post in posts %}
+    <div class="index_post text-center align-items-center justify-content-center col-12">
+            <div class="index-post-item col-12 offset-md-1 col-md-10 offset-xl-3 col-xl-6">
+                {{post.post.blog.name}} <br>
+
+                        <div class="index_post_tile col-11">
+                            <div class="post_title">
+                                <h4> {{post.post.title}} </h4>
+                            </div>
+
+                            <div >
+                                {{post.post.content|linebreaks}}
+                                {% if post.image_count > 0 %}
+
+                                <img class="blog_image" src="/media/{{post.image.image}}">
+                                {% endif %}
+                            </div>
+
+                            <div class="icon_wrapper">
+                                <div>
+                                    <i class="far fa-comments"></i> {{post.comment_count}}
+                                </div>
+                                <div>
+                                    <i class="far fa-heart"></i> {{post.like_count}}
+                                </div>
+
+                                {% if post.image_count > 0 %}
+                                <div>
+                                    <i class="far fa-images"></i> {{post.image_count}}
+                                </div>
+                                {% endif %}
+
+                            </div>
+
+                            <a href="/blogs/{{post.post.blog.name}}/post/{{post.post.id}}/">
+                                <div class="read_more">
+                                    read more...
+                                </div>
+                            </a>
+                        </div>
+            </div>
+    </div>
+    {% endfor %}
+
+
+    {% if posts.has_other_pages %}
+            <div class="text-center row align-items-center justify-content-center">
+            <ul class="pagination">
+                {% if posts.has_previous %}
+                <li><a href="?range={{range}}&page={{posts.previous_page_number}}"><i class="fas fa-chevron-left"></i></a></li>
+                {% else %}
+                <li class="disable"><span></span><i class="fas fa-chevron-left"></i></li>
+                {% endif %}
+                {% for page in posts.paginator.page_range %}
+                &nbsp
+                    {% if posts.number == page %}
+                <li class="active"><span> {{ page }} <span class="sr-only"> (current) </span></span></li>
+                    {% else %}
+                <li><a href="?range={{range}}&page={{ page }}"> {{ page }} </a></li>
+                    {% endif %}
+                &nbsp
+                {% endfor %}
+                {% if posts.has_next %}
+                    <li><a href="?range={{range}}&page={{ posts.next_page_number }}"><i class="fas fa-chevron-right"></i></a></li>
+                {% else %}
+                    <li class="disable"><span><i class="fas fa-chevron-right"></i></span></li>
+                {% endif %}
+            </ul>
+            </div>
+            {% endif %}
+
+    <script type="text/javascript">
+
+    onLoadFunction = function()
+    {
+        var query = window.location.href.split('?')[1];
+        if(query)
+        {
+            var searchParam = query.split('&')[0].split('=')[1];
+            var buttonID = "button_" + searchParam;
+        }
+        else
+        {
+            var buttonID = "button_24h";
+        }
+
+        var button = document.getElementById(buttonID);
+        button.classList.add("post_range_button_active");
+    }
+
+    </script>
     {% endblock %}

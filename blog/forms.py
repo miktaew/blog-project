@@ -468,5 +468,5 @@ class SearchForm(forms.Form):
         )
         super(SearchForm, self).__init__(*args, **kwargs)
         self.initial['order'] = 'ascending'
-        self.initial['by'] = 'creation_date'
+        self.initial['by'] = 'favourites'
 

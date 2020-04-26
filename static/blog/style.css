@@ -276,7 +276,56 @@ a.button {
 .found_blog_description{
     font-style:italic;
 }
+.blog_topics {
+    text-align:center;
+}
+a.blog_topic {
+    color:black;
+}
+.post_range_button {
+    margin: 2px;
+    background-color: #3282b8;
+    color: black;
+    border: 1px solid #0f4c75;
+    padding: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+    max-width: 40px;
+    min-width: 40px;
+}
+.post_range_button a{
+    color: black;
+}
+.post_range_button a:hover{
+    color: black;
+    text-decoration: none;
+}
+.post_range_button_active {
+    background-color: #bbe1fa;
+}
 
+
+.index_post_tile {
+    background-color: #3282b8;
+    min-height:200px;
+    padding-top:10px;
+    padding-bottom:10px;
+    display: inline-block;
+    overflow: hidden;
+    max-height: 350px;
+}
+.index_post_tile > a {
+color: black;
+}
+.index_post_tile > a:hover {
+color: black;
+}
+.index-post-item {
+    max-height: 400px;
+    background-color: #bbe1fa;
+    padding: 10px;
+    margin-bottom: 20px;
+}
 
 /*
 colors:

@@ -16,6 +16,11 @@
                     <div> Blog is being run by: {{blog.owner}}</div>
                 </div>
 
+                <div class="blog_topics">
+                        {% for topic in topics %}
+                        <a href="/search/?topics={{topic.id}}" class="blog_topic">{{topic.name}}</a>{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </div>
                 <div class="favcount">
                     Faved by {{ favcount }} users
                 </div>
@@ -68,7 +73,7 @@
 
                 {% for post in posts %}
 
-                    <div class="text-center align-items-center justify-content-center blog-item" style="margin-bottom:20px;">
+                <div class="text-center align-items-center justify-content-center blog-item" style="margin-bottom:20px;">
 
                         <div class="blog_post col-12" style="max-height:inherit">
 

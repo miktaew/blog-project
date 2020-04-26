@@ -2,8 +2,6 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import User, AbstractUser
 from django.db import models
 from django.db.models import Count
-from django.forms.models import model_to_dict, ModelForm
-from django.http import HttpResponse
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 
@@ -50,16 +48,6 @@ class Blog(models.Model):  # blogs
     @staticmethod
     def get_blogs():
         b = Blog.objects.filter(active=True)
-        return list(b)
-
-    @staticmethod
-    def get_blogs_newest():
-        b = Blog.objects.filter(active=True).order_by('-creation_date')[:5]
-        return list(b)
-
-    @staticmethod
-    def get_blogs_top():
-        b = Blog.objects.annotate(faves=Count('blog_favs')).order_by('-faves')[:5]
         return list(b)
 
     def __str__(self):

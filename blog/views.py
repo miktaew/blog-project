@@ -1,12 +1,10 @@
-from django.contrib.auth.forms import UserCreationForm
+from datetime import timedelta, date, datetime
+
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.core.paginator import PageNotAnInteger, EmptyPage, Paginator
-from django.db.models import Count, Q
+from django.db.models import Q, Count, F
 from django.forms import modelformset_factory
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.template import loader, RequestContext
 from django.urls import reverse_lazy
 from django.views import generic
 from django.utils import timezone
@@ -19,9 +17,78 @@ from blog.models import Blog, Post, Comment, Image, LastVisit, FavouriteBlogs, P
 
 
 def index(request):
-    newest_blogs = Blog.get_blogs_newest()
-    top_blogs = Blog.get_blogs_top()
-    context = {"new_blogs": newest_blogs, "top_blogs": top_blogs}
+    # top: 24h - 1d - 30d - 1y - ever
+
+    current_date = timezone.now()
+
+    if not request.GET.get('range'):
+        time_range = "24h"
+    else:
+        time_range = request.GET.get('range')
+
+    if time_range == "24h":
+        startdate = current_date - timedelta(days=1)
+        posts = Post.objects.filter(creation_date__range=[startdate, current_date]).annotate(like_count=Count("post_likes")).order_by('-like_count')
+
+    elif time_range == "7d":
+        startdate = current_date - timedelta(days=7)
+        posts = Post.objects.filter(creation_date__range=[startdate, current_date]).annotate(like_count=Count("post_likes")).order_by('-like_count')
+
+    elif time_range == "30d":
+        startdate = current_date - timedelta(days=30)
+        posts = Post.objects.filter(creation_date__range=[startdate, current_date]).annotate(like_count=Count("post_likes")).order_by('-like_count')
+
+    elif time_range == "1y":
+        startdate = current_date - timedelta(days=365)
+        posts = Post.objects.filter(creation_date__range=[startdate, current_date]).annotate(like_count=Count("post_likes")).order_by('-like_count')
+
+    elif time_range == "ever":
+        posts = Post.objects.all().annotate(like_count=Count("post_likes")).order_by('-like_count')
+
+    list = []
+    for post in posts:
+        try:
+            blog = post.blog
+
+            try:
+                comment_count = post.comments.all().count()
+            except IndexError:
+                comment_count = 0
+
+            try:
+                image = post.images.all()[0]
+                image_count = post.images.all().count()
+            except IndexError:
+                image = None
+                image_count = 0
+
+            try:
+                like_count = post.post_likes.all().count()
+            except IndexError:
+                like_count = 0
+
+            if request.user.is_authenticated:
+                is_liked = LikedPosts.objects.filter(post=Post.objects.get(id=post.id), user=request.user).exists()
+            else:
+                is_liked = False
+
+            list.append({'post': post, 'image': image, 'image_count': image_count, 'comment_count': comment_count,
+                            'like_count': like_count, 'is_liked': is_liked})
+
+        except Exception as e:
+            print(e)
+            continue
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(list, 5)
+    try:
+        content = paginator.page(page)
+    except PageNotAnInteger:
+        content = paginator.page(1)
+    except EmptyPage:
+        content = paginator.page(paginator.num_pages)
+
+    context = {"posts": content, "range": time_range}
     return render(request, 'index.html', context)
 
 
@@ -95,6 +162,7 @@ def blog(request, blog_name):
                 continue
 
         favcount = Blog.get_blog_favcount(blog_name)
+        topics = requested_blog.topics.all()
 
         ordering = request.GET.get('sorting_order')
         # print("ordering: " + ordering)
@@ -117,7 +185,7 @@ def blog(request, blog_name):
         except EmptyPage:
             posts = paginator.page(paginator.num_pages)
 
-        context.update({"blog": requested_blog, "posts": posts, 'favcount': favcount, 'sorting_order': ordering})
+        context.update({"blog": requested_blog, "posts": posts, 'favcount': favcount, 'sorting_order': ordering, 'topics': topics})
         return render(request, 'blog/blog.html', context)
     else:
         return redirect('/')
@@ -575,12 +643,12 @@ def search_blogs_view(request):
 
     blogs = [{"blog": blog, "favcount": Blog.get_blog_favcount(blog)} for blog in found]
 
-    if request.GET.get('order') == "descending":
+    if not request.GET.get('order') or request.GET.get('order') == "descending":
         reverse = True
     elif request.GET.get('order') == "ascending":
         reverse = False
 
-    if request.GET.get('sort_by') == "favourites":
+    if request.GET.get('sort_by') == "favourites" or not request.GET.get('sort_by'):
         sort_by = "favcount"
         blogs = sorted(blogs, key=lambda blog: blog["favcount"], reverse=reverse)
     elif request.GET.get('sort_by') == "name":
