@@ -7,10 +7,10 @@
 
     {% block content %}
 
-        <form method="post" name="private_message_form" class="col-sm-12 col-md-8 col-lg-6">
+        <form method="post" name="private_message_form" class="col-sm-12 col-md-8 col-lg-6 my_form rounded">
             {% csrf_token %}
             {{private_message_form|crispy}}
-            <input type="submit" value="Send"/>
+            <input type="submit" class="my_button_active rounded" value="Send"/>
         </form>
 
     {% endblock %}

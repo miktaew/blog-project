@@ -4,13 +4,17 @@
     {{blog.display_name}}
 {% endblock %}
 
+{% block onload %}
+    onload = "onLoadFunction()"
+{% endblock %}
+
 {% block content %}
 {% if not blog.active %}
         <h2> <strong>Blog has been deactivated!</strong></h2>
     {% else %}
         <div class="container">
             <div class="col-12">
-                <div class="blog-info col-12">
+                <div class="blog-info col-12 rounded-bottom">
                     <h1>{{blog.display_name}} </h1>
                     <h4>{{blog.description}}</h4>
                     <div> Blog is being run by: {{blog.owner}}</div>
@@ -18,7 +22,7 @@
 
                 <div class="blog_topics">
                         {% for topic in topics %}
-                        <a href="/search/?topics={{topic.id}}" class="blog_topic">{{topic.name}}</a>{% if not forloop.last %}, {% endif %}
+                        <a href="/search/?topics={{topic.id}}" class="blog_topic">{{topic.name}}</a>{% if not forloop.last %} / {% endif %}
                         {% endfor %}
                     </div>
                 <div class="favcount">
@@ -28,18 +32,18 @@
 
                 {% if request.user.is_authenticated %}
                     {% if blog.name == request.user.blog.name %}
-                        <a href="/blog/post/create/" target="none"><button>Create new post</button></a>
+                        <a href="/blog/post/create/" target="none"><button class="my_button_active rounded">Create new post</button></a>
 
                     {% elif is_faved %}
                         <form method="post" action="remove_from_favourites/">
                             {% csrf_token %}
-                            <button type="submit">Unfave <i class="fas fa-ban"></i> </button>
+                            <button type="submit" class="my_button rounded">Unfave <i class="fas fa-ban"></i> </button>
                         </form>
 
                     {% else %}
                         <form method="post" action="add_to_favourites/">
                             {% csrf_token %}
-                            <button type="submit">Fave <i class="far fa-star"></i> </button>
+                            <button type="submit" class="my_button rounded">Fave <i class="far fa-star"></i> </button>
                         </form>
                     {% endif %}
                 {% endif %}
@@ -51,22 +55,18 @@
 
                 <div class="text-center row align-items-center justify-content-center">
                     Sort by:
-                    <div style="margin:10px;">
-                        <a href="?sorting_order=newest">
-                            <button> Newest </button>
+                        <a href="?sorting_order=newest" style="display:block">
+                            <div class="my_button rounded" id="button_newest"> Newest </div>
                         </a>
-                    </div>
 
-                    <div style="margin:10px;">
-                        <a href="?sorting_order=oldest">
-                            <button> Oldest </button>
+                        <a href="?sorting_order=oldest" style="display:block">
+                            <div  class="my_button rounded" id="button_oldest"> Oldest </div>
                         </a>
-                    </div>
-                    <div style="margin:10px;">
-                        <a href="?sorting_order=best">
-                            <button> Best </button>
+
+                        <a href="?sorting_order=best" style="display:block">
+                            <div class="my_button rounded" id="button_best"> Best </div>
                         </a>
-                    </div>
+
                 </div>
 
                 <div class="col-12 black_line"></div>
@@ -75,7 +75,7 @@
 
                 <div class="text-center align-items-center justify-content-center blog-item" style="margin-bottom:20px;">
 
-                        <div class="blog_post col-12" style="max-height:inherit">
+                        <div class="blog_post col-12 rounded-lg" style="max-height:inherit">
 
                             {% if blog.name == user.blog.name %}
                             <div class="post_manage">
@@ -129,7 +129,7 @@
                             </div>
 
                             <a href="/blogs/{{blog.name}}/post/{{post.post.id}}/">
-                                <div class="read_more">
+                                <div class="read_more rounded-top">
                                     read more...
                                 </div>
                             </a>
@@ -143,23 +143,23 @@
             <div class="text-center row align-items-center justify-content-center">
             <ul class="pagination">
                 {% if posts.has_previous %}
-                <li><a href="?page={{posts.previous_page_number}}&sorting_order={{sorting_order}}"><i class="fas fa-chevron-left"></i></a></li>
+                <li class="page-item"><a class="page-link" href="?page={{posts.previous_page_number}}&sorting_order={{sorting_order}}"><i class="fas fa-chevron-left"></i></a></li>
                 {% else %}
-                <li class="disable"><span></span><i class="fas fa-chevron-left"></i></li>
+                <li class="disabled page-item"><span></span><i class="page-link fas fa-chevron-left"></i></li>
                 {% endif %}
                 {% for page in posts.paginator.page_range %}
                 &nbsp
                     {% if posts.number == page %}
-                <li class="active"><span> {{ page }} <span class="sr-only"> (current) </span></span></li>
+                <li class="active page-item"><span class="page-link"> {{ page }} <span class="sr-only"> (current) </span></span></li>
                     {% else %}
-                <li><a href="?page={{ page }}&sorting_order={{sorting_order}}"> {{ page }} </a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page }}&sorting_order={{sorting_order}}"> {{ page }} </a></li>
                     {% endif %}
                 &nbsp
                 {% endfor %}
                 {% if posts.has_next %}
-                    <li><a href="?page={{ posts.next_page_number }}&sorting_order={{sorting_order}}"><i class="fas fa-chevron-right"></i></a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ posts.next_page_number }}&sorting_order={{sorting_order}}"><i class="fas fa-chevron-right"></i></a></li>
                 {% else %}
-                    <li class="disable"><span><i class="fas fa-chevron-right"></i></span></li>
+                    <li class="disabled page-item"><span><i class="fas fa-chevron-right page-link"></i></span></li>
                 {% endif %}
             </ul>
             </div>
@@ -180,6 +180,24 @@
                 alert(err);
             }
         }
+
+    onLoadFunction = function()
+    {
+        var query = window.location.href.split('?')[1];
+        if(query)
+        {
+            var searchParam = query.split('&')[0].split('=')[1];
+            var buttonID = "button_" + searchParam;
+        }
+        else
+        {
+            var buttonID = "button_newest";
+        }
+
+        var button = document.getElementById(buttonID);
+        button.classList.add("my_button_active");
+    }
+
     </script>
     {% endif %}
     {% endblock %}

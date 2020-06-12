@@ -7,13 +7,14 @@ body{
     max-height:600px;
  }
 .blog_post {
-    background-color: #3282b8;
+    background-color: #415A77;
     min-height:200px;
     padding-top:10px;
     padding-bottom:10px;
     display: inline-block;
     margin-bottom: 30px;
     overflow: hidden;
+    color: white;
 }
 .blog_post > a {
 color: black;
@@ -37,12 +38,12 @@ color: black;
 .new-blog-list{
     border:1px solid black;
     margin-top:10px;
-    background-color: #bbe1fa;
+    background-color: #778DA9;
 }
 .top-blog-list{
     border:1px solid black;
     margin-top:10px;
-    background-color: #bbe1fa;
+    background-color: #778DA9;
 }
 .blog-tile{
     cursor:pointer;
@@ -58,19 +59,20 @@ a {
     border: 1px solid black;
 }
 .manage_panel {
-    border: 1px solid black;
     margin: 5px;
     padding: 5px;
 }
+
 .comment_pane {
     margin-top: 10px;
     margin-bottom: 10px;
-    background-color: #bbe1fa;
+    background-color: #778DA9;
 }
 .blog-info {
     text-align: center;
-    background-color: #3282b8;
+    background-color: #415A77;
     padding: 10px;
+    color: white;
 }
 .fave-pane {
     text-align: center;
@@ -78,13 +80,13 @@ a {
     margin-left:10px;
     padding-top:5px;
     padding-bottom:5px;
-    background-color: #bbe1fa;
-    border: 1px solid #3282b8;
+    background-color: #778DA9;
+    border: 1px solid #415A77;
 }
 .fave-pane-new {
-    background-color: #3282b8;
+    background-color: #415A77;
     font-weight: bold;
-    border: 1px solid #0f4c75;
+    border: 1px solid #1B263B;
 }
 .count-block{
 
@@ -97,6 +99,13 @@ a.button {
     text-decoration: none;
     color: initial;
 }
+.post_blog-name > a{
+    color: black;
+}
+.post_blog-name > a:hover{
+    color: black;
+    text-decoration: none;
+}
 
 [name$="-image-clear"][name^="form-"], [for$="-image-clear_id"][for^="form-"] {
     display:none;
@@ -108,7 +117,7 @@ a.button {
     padding-top: 20px;
     padding-bottom: 20px;
     text-align: center;
-    background-color: #0f4c75;
+    background-color: #1B263B;
 
     font-weight: bold;
     color:white;
@@ -118,8 +127,8 @@ a.button {
     position: absolute;
     bottom: 0;
     right: 0;
-    border: 1px solid #0f4c75;
-    background-color: #0f4c75;
+    border: 1px solid #1B263B;
+    background-color: #1B263B;
     color: white;
     padding:5px;
 }
@@ -128,8 +137,8 @@ a.button {
     position: absolute;
     bottom: 0;
     left: 0;
-    border: 1px solid #0f4c75;
-    background-color: #0f4c75;
+    border: 1px solid #1B263B;
+    background-color: #1B263B;
     color: white;
     padding:5px;
 }
@@ -138,8 +147,8 @@ a.button {
     left: 0;
     top: 0;
     position: absolute;
-    border: 1px solid #0f4c75;
-    background-color: #0f4c75;
+    border: 1px solid #1B263B;
+    background-color: #1B263B;
     color: white;
     padding:5px;
     display:block;
@@ -155,13 +164,13 @@ a.button {
     display:block;
     padding-left: 5px;
     padding-right: 5px;
-    border-bottom: 1px solid #3282b8;
+    border-bottom: 1px solid #415A77;
     word-wrap: break-word;
     margin: auto;
 }
 
 .blog_return{
-    background-color: #0f4c75;
+    background-color: #1B263B;
     color: white;
     padding:5px;
     margin-bottom:10px;
@@ -199,9 +208,9 @@ a.button {
 }
 
 .message_tile{
-    background: #bbe1fa;
-    margin-top: 5px;
-    margin-bottom: 5px;
+    background: #778DA9;
+    margin-top: 20px;
+    margin-bottom: 20px;
     padding: 10px 5px 10px 5px;
     cursor:pointer;
     color:black;
@@ -209,7 +218,12 @@ a.button {
 
 .message{
     margin:20px;
-    background: #bbe1fa;
+}
+.sent_message{
+    background: #778DA9;
+}
+.received_message{
+    background: #415A77;
 }
 .message-title{
     border-bottom: solid black 1px;
@@ -226,7 +240,7 @@ a.button {
 
 }
 .message-new{
-    background: #3282b8;
+    background: #415A77;
     font-weight: bold;
 }
 .message-count{
@@ -234,7 +248,7 @@ a.button {
     font-weight: bold;
 }
 .messages_return{
-    background-color: #0f4c75;
+    background-color: #1B263B;
     color: white;
     padding:5px;
     margin-bottom:10px;
@@ -246,7 +260,7 @@ a.button {
     padding:20px;
     margin:5px;
     text-align:center;
-    border: 1px solid #3282b8;
+    border: 1px solid #415A77;
 }
 .not-a-button{
     border: none;
@@ -269,12 +283,46 @@ a.button {
     min-width: 350px;
 }
 .found_blog{
-    background-color: #bbe1fa;
-    margin:5px;
-    border: 2px solid #3282b8;
+    background-color: #778DA9;
+    margin: 20px 5px 20px 5px;
+    border: 2px solid #415A77;
+    cursor: pointer;
+}
+.found_blog:hover{
+    color: black;
+    text-decoration: none;
+    background-color: #415A77;
+    border: 2px solid #778DA9;
+}
+a > .found_blog{
+    color: black;
+}
+a.found_blog-link:hover{
+    color: black;
+    text-decoration: none;
+}
+.found_blog_name{
+    font-weight: bold;
 }
 .found_blog_description{
+
+}
+.found_blog_topics{
     font-style:italic;
+    font-size: small;
+}
+.found_blogs{
+    margin-top: 5px;
+    max-height: 90vh;
+    overflow-y: scroll;
+
+}
+.found_blogs::-webkit-scrollbar{
+
+}
+.found_blogs::-webkit-scrollbar-thumb {
+  background-color: #415A77;
+  outline: 1px solid slategrey;
 }
 .blog_topics {
     text-align:center;
@@ -282,37 +330,48 @@ a.button {
 a.blog_topic {
     color:black;
 }
-.post_range_button {
+.my_button {
     margin: 2px;
-    background-color: #3282b8;
+    background-color: #778DA9;
     color: black;
-    border: 1px solid #0f4c75;
+    border: 1px solid #1B263B;
     padding: 1px;
     padding-left: 5px;
     padding-right: 5px;
-    max-width: 40px;
-    min-width: 40px;
+
 }
-.post_range_button a{
+
+.my_button a{
     color: black;
 }
-.post_range_button a:hover{
+.my_button a:hover{
     color: black;
     text-decoration: none;
 }
-.post_range_button_active {
-    background-color: #bbe1fa;
+.my_button_active {
+    background-color: #415A77;
+    border: 1px solid #1B263B;
+    color: white;
 }
 
+.my_form {
+    margin: 2px;
+    background-color: #778DA9;
+    color: black;
+    border: 1px solid #1B263B;
+    padding: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
 
 .index_post_tile {
-    background-color: #3282b8;
+    background-color: #415A77;
     min-height:200px;
     padding-top:10px;
     padding-bottom:10px;
     display: inline-block;
     overflow: hidden;
-    max-height: 350px;
+    max-height: 340px;
 }
 .index_post_tile > a {
 color: black;
@@ -322,9 +381,21 @@ color: black;
 }
 .index-post-item {
     max-height: 400px;
-    background-color: #bbe1fa;
+    background-color: #778DA9;
     padding: 10px;
+    padding-bottom: 20px;
     margin-bottom: 20px;
+}
+.post_blog-name {
+    text-align: left;
+}
+
+.nolink{
+    color: black;
+}
+.nolink:hover {
+    text-decoration: none;
+    color: black;
 }
 
 /*
@@ -333,5 +404,11 @@ colors:
 #0f4c75
 #3282b8
 #bbe1fa -> brightest
+
+other:
+#0D1B2A -> darkest
+#1B263B
+#415A77
+#778DA9 -> brightest
 
 */

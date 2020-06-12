@@ -9,7 +9,7 @@ from blogApp import settings
 
 urlpatterns = [
     path('', views.index, name='main_page'),
-    path('accounts/', include('django.contrib.auth.urls')),
+    path('', include('django.contrib.auth.urls')),
     path('admin/', admin.site.urls, name='admin_page'),
 
     path('blogs/<blog_name>/', views.blog, name='blog_page'),

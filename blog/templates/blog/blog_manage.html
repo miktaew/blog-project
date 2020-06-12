@@ -6,38 +6,37 @@
 {% block content %}
 {% if blog.active %}
 <div class="row">
-        <div class="col-sm-12 col-md-5 description_edition_panel manage_panel">
+        <div class="col-sm-12 col-md-5 description_edition_panel manage_panel rounded">
             <h4>Edit blog</h4>
-                <form method="post" name="update-description">
+                <form method="post" class="my_form rounded" name="update-description">
                     {% csrf_token %}
                     {{update_blog_form|crispy}}
-                    <input type="submit" value="Change" />
+                    <input type="submit" class="rounded my_button_active" value="Change" />
                 </form>
 
         </div>
 
-        <div class="col-sm-12 col-md-6 deactivation_panel manage_panel">
-
-            <h5>Deactivate your blog</h5>
+        <div class="col-sm-12 col-md-5 deactivation_panel manage_panel rounded">
+            <h4>Deactivate your blog</h4>
             <div style="color:red"><strong>Warning! Though it can be reactivated, all content from your blog will be lost!</strong></div> {# Maybe make it be removed after certain time, like 30 days? #}
-                <form method="post" name="deactivate">
+                <form method="post" class="my_form rounded" name="deactivate">
                     {% csrf_token %}
                     {{deactivation_form|crispy}}
 
-                    <input type="submit" value="Deactivate" />
+                    <input type="submit" class="rounded my_button_active" value="Deactivate" />
                 </form>
 
             </div>
         </div>
 
-        <div class="col-sm-12 col-md-5 topics_panel manage_panel">
+        <div class="col-sm-12 col-md-5 manage_panel topics_panel rounded">
 
             <h4>Change the topics of your blog</h4>
-                <form method="post" name="update-topics">
+                <form method="post"  class="my_form rounded" name="update-topics">
                     {% csrf_token %}
                     {{update_topics_form|crispy}}
 
-                    <input type="submit" value="Update" />
+                    <input type="submit" class="rounded my_button_active" value="Update" />
                 </form>
 
             </div>
@@ -46,7 +45,7 @@
 {% else %}
     <div class="row">
 
-        <div class="col-sm-12 col-md-6 reactivation_panel">
+        <div class="col-sm-12 col-md-6 reactivation_panel manage_panel">
             <h4>Reactivate your blog</h4>
                 <form method="post" name="reactivate">
                     {% csrf_token %}

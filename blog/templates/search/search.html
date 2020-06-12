@@ -9,36 +9,60 @@ onload = "onLoadFunction()"
 
 {% block content %}
 
-<div class="row">
+<div class="row" style="margin-top:20px;">
     <div class="search_options col-xl-4 col-md-6 col-12">
         <form>
             {% crispy search_form %}
             <input type="submit" value='Search' id="button"/>
         </form>
     </div>
-    <div class="found_blogs col-xl-8 col-md-6 col12">
+    <div class="found_blogs col-xl-8 col-md-6 col-12">
         {% for blog in blogs %}
-            <div class="found_blog col-12">
-                <div class="found_blog_name">{{blog.blog.name}}</div>
+        <a href="/blogs/{{blog.blog.name}}/" class="found_blog-link">
+            <div class="found_blog col-12 rounded">
+                <div class="found_blog_name">{{blog.blog.display_name}}</div>
                 <div class="found_blog_topics">
                     {% for topic in blog.blog.topics.all %}
                     {{topic.name}};
                     {% endfor %}
                 </div>
-                <div class="found_blog_description">{{blog.blog.description}}</div>
+                <div class="found_blog_description">"{{blog.blog.description}}"</div><br>
                 <div class="found_blog_favs">
-                    Faved by {{blog.favcount}}
-                    {% if blog.favcount == 1 %}
-                    user
-                    {% else %}
-                    users
-                    {% endif %}
+                     {{blog.favcount}}<i class="far fa-star"></i>
+
                 </div>
             </div>
+        </a>
         {% endfor %}
 
     </div>
 </div>
+
+{% if blogs.has_other_pages %}
+            <div class="text-center row align-items-center justify-content-center">
+            <ul class="pagination">
+                {% if blogs.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{blogs.previous_page_number}}&order={{order}}&sort_by={{sort_by}}&topics={{topics}}"><i class="fas fa-chevron-left"></i></a></li>
+                {% else %}
+                <li class="disabled page-item"><span></span><i class="page-link fas fa-chevron-left"></i></li>
+                {% endif %}
+                {% for page in blogs.paginator.page_range %}
+                &nbsp
+                    {% if posts.number == page %}
+                <li class="active page-item"><span class="page-link"> {{ page }} <span class="sr-only"> (current) </span></span></li>
+                    {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ page }}&order={{order}}&sort_by={{sort_by}}&topics={{topics}}"> {{ page }} </a></li>
+                    {% endif %}
+                &nbsp
+                {% endfor %}
+                {% if blogs.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ blogs.next_page_number }}&order={{order}}&sort_by={{sort_by}}&topics={{topics}}"><i class="fas fa-chevron-right"></i></a></li>
+                {% else %}
+                    <li class="disabled page-item"><span><i class="fas fa-chevron-right page-link"></i></span></li>
+                {% endif %}
+            </ul>
+            </div>
+            {% endif %}
 
 
 <script type="text/javascript">
@@ -47,7 +71,6 @@ onload = "onLoadFunction()"
     {
         var searchQuery = window.location.href.split('?')[1];
         var searchParams = searchQuery.split('&');
-        console.log(searchParams);
 
         for(i=0; i<searchParams.length; i++)
         {
@@ -64,9 +87,9 @@ onload = "onLoadFunction()"
             }
             else if(searchParams[i].split("=")[0].localeCompare("topics")==0)
             {
-                var topics = searchParams[i].split("=")[1].split(",");
+                var topics_string = searchParams[i].split("=")[1].replace("[","").replace("]","").replace(" ","");
+                var topics = topics_string.split(",");
                 var checkBoxes = document.getElementsByName("topics");
-                console.log(topics);
 
                 for(j=0; j<checkBoxes.length; j++)
                 {

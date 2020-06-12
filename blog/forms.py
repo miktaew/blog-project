@@ -4,7 +4,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, MultiField, Div, Fieldset
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
 from blog.models import Blog, Post, Comment, Image, PrivateMessage, Topic
 
@@ -15,12 +15,14 @@ class BlogForm(forms.ModelForm):
     name = forms.CharField(
         max_length=60,
         required=True,
-        help_text='Select the name of your blog. Be careful though, as it cannot be changed later'
+        help_text="<div style='color: black;'>Select the name of your blog. Be careful though, as it cannot be "
+                  "changed later</div> "
     )
     description = forms.CharField(
         required=False,
         initial="Welcome to my blog!",
-        help_text='Blog description can be changed at any time. You can also leave it default or empty',
+        help_text="<div style='color: black;'>Blog description can be changed at any time. You can also leave it "
+                  "default or empty</div>",
         widget=forms.Textarea(
             attrs={
                 "rows": 4
@@ -29,7 +31,7 @@ class BlogForm(forms.ModelForm):
     )
     display_name = forms.CharField(
         required=True,
-        help_text="Name of your blog",
+        help_text="<div style='color: black;'>Name of your blog</div>",
         max_length=120
     )
     topics = forms.MultipleChoiceField(
@@ -37,7 +39,7 @@ class BlogForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple(),
         required=False,
         label='Select topics of your blog',
-        help_text='You can change them at any time',
+        help_text="<div style='color: black;'>You can change them at any time</div>",
     )
     owner = forms.ModelChoiceField(
         queryset=User.objects.all(),
@@ -69,12 +71,14 @@ class RawBlogForm(forms.Form):
     name = forms.CharField(
         max_length=60,
         required=True,
-        help_text='Select the name of your blog. Be careful though, as it cannot be changed later'
+        help_text="<div style='color: black;'>Select the name of your blog. Be careful though, as it cannot be "
+                  "changed later</div> "
     )
     description = forms.CharField(
         required=False,
         initial="Welcome to my blog!",
-        help_text='Description can be changed at any time in blog settings. You can also leave it default or empty',
+        help_text="<div style='color: black;'>Description can be changed at any time in blog settings. You can also "
+                  "leave it default or empty</div>",
         widget=forms.Textarea(
             attrs={
                 "rows": 4
@@ -110,10 +114,12 @@ class RawBlogForm(forms.Form):
 class BlogDeactivationForm(forms.Form):
     confirm_name = forms.CharField(max_length=120,
                                    required=True,
-                                   help_text="Enter displayed blog name for confirmation",)
+                                   help_text="<div style='color: black;'>Enter displayed blog name for "
+                                             "confirmation</div>",)
     # No, blog for deletion is not taken from this field, it's just for confirmation
     deactivation_password = forms.CharField(label="Password",
-                                            help_text="Confirm password for deactivation",
+                                            help_text="<div style='color: black;'>Confirm password for "
+                                                      "deactivation</div>",
                                             widget=forms.PasswordInput)
 
     class Meta:
@@ -168,7 +174,7 @@ class BlogReactivationForm(forms.Form):
 
 class BlogNewPostForm(forms.ModelForm):
     title = forms.CharField(
-        help_text="Title of new post",
+        help_text="<div style='color: black;'>Title of new post</div>",
         required=True,
         max_length=600,
     )
@@ -241,7 +247,7 @@ class BlogUpdateForm(forms.ModelForm):
     display_name = forms.CharField(
         required=True,
         initial="My Blog",
-        help_text="Name of your blog",
+        help_text="<div style='color: black;'> Name of your blog </div>",
         max_length=120
     )
 
@@ -430,7 +436,7 @@ class SearchForm(forms.Form):
     topics = forms.MultipleChoiceField(choices=TOPIC_CHOICES, widget=forms.CheckboxSelectMultiple(),
                                        required=False)
 
-    ORDER = [['ascending', 'ascending'], ['descending', 'descending']]
+    ORDER = [['descending', 'descending'], ['ascending', 'ascending']]
 
     order = forms.ChoiceField(choices=ORDER, required=True, widget=forms.Select())
 
@@ -467,6 +473,5 @@ class SearchForm(forms.Form):
                 )
         )
         super(SearchForm, self).__init__(*args, **kwargs)
-        self.initial['order'] = 'ascending'
+        self.initial['order'] = 'descending'
         self.initial['by'] = 'favourites'
-

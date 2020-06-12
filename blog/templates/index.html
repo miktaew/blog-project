@@ -7,7 +7,7 @@
     {% endblock %}
 
     {% block content %}
-        <div class="col-12 app-info">
+        <div class="col-12 app-info rounded-bottom">
             <h5> Welcome to blogApp </h5>
             If you want to start your own blog, all that is needed is
             <a href="{% url 'login' %}?next={{request.path}}"style="color:white;"> signing up </a>
@@ -18,19 +18,19 @@
         <br><br>
         <div class="text-center row align-items-center justify-content-center">
         Most popular posts from: &nbsp
-            <a href="?range=24h" target="none" style="display:block"><div class="post_range_button" id="button_24h">24h</div></a>
-            <a href="?range=7d" target="none" style="display:block"><div class="post_range_button" id="button_7d">7d</div></a>
-            <a href="?range=30d" target="none" style="display:block"><div class="post_range_button" id="button_30d">30d</div></a>
-            <a href="?range=1y" target="none" style="display:block"><div class="post_range_button" id="button_1y">1y</div></a>
-            <a href="?range=ever" target="none" style="display:block"><div class="post_range_button" id="button_ever">ever</div></a>
+            <a href="?range=24h" target="none" style="display:block"><div class="my_button rounded" id="button_24h">24h</div></a>
+            <a href="?range=7d" target="none" style="display:block"><div class="my_button rounded" id="button_7d">7d</div></a>
+            <a href="?range=30d" target="none" style="display:block"><div class="my_button rounded" id="button_30d">30d</div></a>
+            <a href="?range=1y" target="none" style="display:block"><div class="my_button rounded" id="button_1y">1y</div></a>
+            <a href="?range=ever" target="none" style="display:block"><div class="my_button rounded" id="button_ever">ever</div></a>
         </div>
 
     {% for post in posts %}
     <div class="index_post text-center align-items-center justify-content-center col-12">
-            <div class="index-post-item col-12 offset-md-1 col-md-10 offset-xl-3 col-xl-6">
-                {{post.post.blog.name}} <br>
+            <div class="index-post-item col-12 offset-md-1 col-md-10 offset-xl-2 col-xl-8 rounded-lg">
+                <div class="post_blog-name"><a href="/blogs/{{post.post.blog.name}}/"><h5>{{post.post.blog.display_name}}</h5></a></div>
 
-                        <div class="index_post_tile col-11">
+                        <div class="index_post_tile col-11 rounded-lg">
                             <div class="post_title">
                                 <h4> {{post.post.title}} </h4>
                             </div>
@@ -74,23 +74,23 @@
             <div class="text-center row align-items-center justify-content-center">
             <ul class="pagination">
                 {% if posts.has_previous %}
-                <li><a href="?range={{range}}&page={{posts.previous_page_number}}"><i class="fas fa-chevron-left"></i></a></li>
+                <li class="page-item"><a class="page-link" href="?range={{range}}&page={{posts.previous_page_number}}"><i class="fas fa-chevron-left"></i></a></li>
                 {% else %}
-                <li class="disable"><span></span><i class="fas fa-chevron-left"></i></li>
+                <li class="disabled page-item"><span></span><i class="fas fa-chevron-left page-link"></i></li>
                 {% endif %}
                 {% for page in posts.paginator.page_range %}
                 &nbsp
                     {% if posts.number == page %}
-                <li class="active"><span> {{ page }} <span class="sr-only"> (current) </span></span></li>
+                <li class="active page-item"><span class="page-link"> {{ page }} <span class="sr-only"> (current) </span></span></li>
                     {% else %}
-                <li><a href="?range={{range}}&page={{ page }}"> {{ page }} </a></li>
+                <li class="page-item"><a class="page-link" href="?range={{range}}&page={{ page }}"> {{ page }} </a></li>
                     {% endif %}
                 &nbsp
                 {% endfor %}
                 {% if posts.has_next %}
-                    <li><a href="?range={{range}}&page={{ posts.next_page_number }}"><i class="fas fa-chevron-right"></i></a></li>
+                    <li class="page-item"><a class="page-link" href="?range={{range}}&page={{ posts.next_page_number }}"><i class="fas fa-chevron-right"></i></a></li>
                 {% else %}
-                    <li class="disable"><span><i class="fas fa-chevron-right"></i></span></li>
+                    <li class="disabled page-item"><span><i class="fas fa-chevron-right page-link"></i></span></li>
                 {% endif %}
             </ul>
             </div>
@@ -112,7 +112,7 @@
         }
 
         var button = document.getElementById(buttonID);
-        button.classList.add("post_range_button_active");
+        button.classList.add("my_button_active");
     }
 
     </script>

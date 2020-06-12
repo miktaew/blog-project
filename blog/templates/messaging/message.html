@@ -13,17 +13,17 @@
     {% endblock %}
 
     {% block content %}
-    <div class="col-12 messages_return"> <a href="/messages/" style="color:inherit;" class="stretched-link">Return to the inbox</a></div>
+    <div class="col-12 messages_return rounded-bottom"> <a href="/messages/" style="color:inherit;" class="stretched-link">Return to the inbox</a></div>
     <div class="text-center row align-items-center justify-content-center">
-        <form method="post" name="private_message_form" class="col-sm-12 col-md-8 col-lg-6">
+        <form method="post" name="private_message_form" class="col-sm-12 col-md-8 col-lg-6 my_form rounded">
             {% csrf_token %}
             {{private_message_form|crispy}}
-            <input type="submit" value="Send"/>
+            <input type="submit" class="my_button_active rounded" value="Send"/>
         </form>
     </div>
     {% for message in messages %}
     <div class="row">
-        <div class="message col-11 {% if message.sender == request.user %} offset-1 {% endif %}">
+        <div class="message rounded-lg col-12 {% if message.sender == request.user %} sent_message {% else %} received_message {% endif %}">
             <div class="row col-12 message-title">
                 <div class="col-4 col-md-3 col-xl-2">
                     {{ message.sender }}

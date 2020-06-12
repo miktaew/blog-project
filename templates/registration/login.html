@@ -11,11 +11,11 @@
             <a href="{% url 'logout' %}">logout</a></p>
     {% else %}
         <p>You are not logged in</p>
-        <p>Log in below, or click <a href="{% url 'signup' %}"><button>register</button></a> to create a new account</p>
-        <form method="post">
+        <p>Log in below, or click <a href="{% url 'signup' %}"><button class="my_button_active rounded">register</button></a> to create a new account</p>
+        <form method="post" class="my_form rounded">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit">Login</button>
+            <button type="submit" class="my_button_active rounded">Login</button>
         </form>
     {% endif %}
 </div>

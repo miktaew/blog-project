@@ -28,13 +28,13 @@ Your favourite blogs
     {% with loopcount=0 %}
     {% for fav in fav_blogs %}
 
-    <div class="col-md-5 col-12" style="margin-left:10px;">
+    <div class="col-md-5 col-12 rounded" style="margin-left:10px;">
 
         <a href="/blogs/{{fav.blog}}/" style="color:black" class="stretched-link">
             {% if fav.new_count > 0 %}
             <div class="fave-pane fave-pane-new row">
                 <div class="col-8">
-                    {{fav.blog}}
+                    {{fav.blog.display_name}}
                 </div>
                 <div class="col-4 count-block">
                     {{fav.new_count}}
@@ -48,7 +48,7 @@ Your favourite blogs
              {% else %}
             <div class="fave-pane row">
                 <div class="col-8">
-                    {{fav.blog}}
+                    {{fav.blog.display_name}}
                 </div>
             </div>
             {% endif %}
@@ -65,23 +65,23 @@ Your favourite blogs
 <div class="text-center row align-items-center justify-content-center">
     <ul class="pagination">
         {% if fav_blogs.has_previous %}
-        <li><a href="?page={{ fav_blogs.previous_page_number }}&sorting_order={{sorting_order}}"><i class="fas fa-chevron-left"></i></a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ fav_blogs.previous_page_number }}&sorting_order={{sorting_order}}"><i class="fas fa-chevron-left"></i></a></li>
         {% else %}
-        <li class="disable"><span></span><i class="fas fa-chevron-left"></i></li>
+        <li class="disable page-item"><span></span><i class="page-link fas fa-chevron-left"></i></li>
         {% endif %}
         {% for page in fav_blogs.paginator.page_range %}
         &nbsp
         {% if fav_blogs.number == page %}
-        <li class="active"><span> {{ page }} <span class="sr-only"> (current) </span></span></li>
+        <li class="active page-item"><span class="page-link"> {{ page }} <span class="sr-only"> (current) </span></span></li>
         {% else %}
-        <li><a href="?page={{ page }}&sorting_order={{sorting_order}}"> {{ page }} </a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page }}&sorting_order={{sorting_order}}"> {{ page }} </a></li>
         {% endif %}
         &nbsp
         {% endfor %}
         {% if fav_blogs.has_next %}
-        <li><a href="?page={{ fav_blogs.next_page_number }}&sorting_order={{sorting_order}}"><i class="fas fa-chevron-right"></i></a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ fav_blogs.next_page_number }}&sorting_order={{sorting_order}}"><i class="fas fa-chevron-right"></i></a></li>
         {% else %}
-        <li class="disable"><span><i class="fas fa-chevron-right"></i></span></li>
+        <li class="disable page-item"><span><i class="page-link fas fa-chevron-right"></i></span></li>
         {% endif %}
     </ul>
 </div>

@@ -8,7 +8,7 @@
 
 {% block content %}
 
-<div class="col-12 blog_return"> <a href="/blogs/{{post.blog.name}}/" style="color:inherit;" class="stretched-link">Return to the blog</a></div>
+<div class="col-12 blog_return rounded-bottom"> <a href="/blogs/{{post.blog.name}}/" style="color:inherit;" class="stretched-link">Return to the blog</a></div>
 
 {% if like_count > 0 %}
 <div class="likecount">
@@ -21,12 +21,12 @@
                         {% if not is_liked %}
                             <form method="post" action="like/">
                                 {% csrf_token %}
-                                <button type="submit">Like <i class="far fa-heart"></i> </button>
+                                <button type="submit" class="my_button rounded">Like <i class="far fa-heart"></i> </button>
                             </form>
                         {% elif is_liked %}
                             <form method="post" action="unlike/">
                                 {% csrf_token %}
-                                <button type="submit">Unlike <i class="fas fa-ban"></i> </button>
+                                <button type="submit" class="my_button rounded">Unlike <i class="fas fa-ban"></i> </button>
                             </form>
                         {% endif %}
                     {% endif %}
@@ -36,7 +36,7 @@
 
 <br><br><br>
 
-<div class="blog_post col-12">
+<div class="blog_post col-12 rounded-lg">
     <h4>{{post.title}}</h4>
     {{post.content|linebreaks}}
     {% if images %}
@@ -56,10 +56,10 @@
 <br><br>
 {% if request.user.is_authenticated %}
 <div class="text-center row align-items-center justify-content-center">
-    <form method="post" name="post_comment_form" class="col-sm-12 col-md-8 col-lg-6">
+    <form method="post" name="post_comment_form" class="col-sm-12 col-md-8 col-lg-6 my_form rounded">
         {% csrf_token %}
         {{post_comment_form|crispy}}
-        <input type="submit" value="Comment"/>
+        <input type="submit" class="my_button_active rounded" value="Comment"/>
     </form>
 </div>
 {% else %}
@@ -68,11 +68,11 @@
 
 {% for comment in comments %}
 <div class="text-center row align-items-center justify-content-center" id="post_comments">
-    <div class="comment_pane col-bg-6 col-md-8 col-12">
+    <div class="comment_pane col-bg-6 col-md-8 col-12 rounded-lg">
         {% if comment.author == post.blog.owner %}
         <strong style="color:blue">{{comment.author}}</strong><br>
         {% else %}
-        <strong>{{comment.author}} (<a href="/blogs/{{comment.author.blog.name}}/">{{comment.author.blog.name}}</a>)</strong><br>
+        <strong>{{comment.author}} (<a href="/blogs/{{comment.author.blog.name}}/" style="color:white;">{{comment.author.blog.name}}</a>)</strong><br>
         {% endif %}
         {{comment.content}}
     </div>

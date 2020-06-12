@@ -240,9 +240,6 @@ def manage_blog_view(request):
     return render(request, 'blog/blog_manage.html', context)
 
 
-# it's terrible, but it seems to work properly
-
-
 @login_required
 def blog_new_post(request):
     blog = request.user.blog
@@ -484,9 +481,9 @@ def private_messages_view(request):
     ordering = request.GET.get('sorting_order')
     # print("ordering: " + ordering)
 
-    if ordering == 'newest' or ordering is None:
+    if ordering == 'new' or ordering is None:
         message_list.sort(key=misc.private_message_date, reverse=True)
-    elif ordering == 'oldest':
+    elif ordering == 'old':
         message_list.sort(key=misc.private_message_date)
     elif ordering == 'new_unread':
         message_list = misc.private_message_unread_new_sort(request, message_list)
@@ -606,7 +603,7 @@ def favs_list_view(request):
         res = misc.favs_adv_sort(res)
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(res, 5)
+    paginator = Paginator(res, 20)
 
     try:
         fav_blogs = paginator.page(page)
@@ -650,11 +647,33 @@ def search_blogs_view(request):
 
     if request.GET.get('sort_by') == "favourites" or not request.GET.get('sort_by'):
         sort_by = "favcount"
-        blogs = sorted(blogs, key=lambda blog: blog["favcount"], reverse=reverse)
+        content = sorted(blogs, key=lambda blog: blog["favcount"], reverse=reverse)
     elif request.GET.get('sort_by') == "name":
-        blogs = sorted(blogs, key=lambda blog: blog["blog"].display_name.lower(), reverse=reverse)
+        content = sorted(blogs, key=lambda blog: blog["blog"].display_name.lower(), reverse=reverse)
     elif request.GET.get('sort_by') == "creation_date":
-        blogs = sorted(blogs, key=lambda blog: blog["blog"].creation_date, reverse=reverse)
+        content = sorted(blogs, key=lambda blog: blog["blog"].creation_date, reverse=reverse)
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(content, 10)
+    try:
+        blogs = paginator.page(page)
+    except PageNotAnInteger:
+        blogs = paginator.page(1)
+    except EmptyPage:
+        blogs = paginator.page(paginator.num_pages)
+
+    if search_topics:
+        context['topics'] = ",".join(map(str, search_topics))
+
+    if request.GET.get('sort_by'):
+        context['sort_by'] = request.GET.get('sort_by')
+    else:
+        context['sort_by'] = 'favourites'
+
+    if request.GET.get('order'):
+        context['order'] = request.GET.get('order')
+    else:
+        context['order'] = 'descending'
 
     context['blogs'] = blogs
     return render(request, 'search/search.html', context)
@@ -664,3 +683,5 @@ class SignUp(generic.CreateView):
     form_class = CaseInsensitiveUserCreationForm
     success_url = reverse_lazy('login')
     template_name = 'blog/signup.html'
+
+

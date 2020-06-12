@@ -4,11 +4,15 @@
         Your private messages
     {% endblock %}
 
+    {% block onload %}
+        onload = "onLoadFunction()"
+    {% endblock %}
+
     {% block content %}
 
     <div class="row col-12">
-    <a href="/messages/create/" class="col-12">
-        <div class="message_button">
+    <a href="/messages/create/" class="col-12 nolink">
+        <div class="message_button rounded">
         Send new message
     </div>
         </a>
@@ -17,31 +21,31 @@
     <div class="text-center row align-items-center justify-content-center">
         Sort by:
     <div style="margin:10px;">
-        <a href="?sorting_order=newest">
-            <button> new</button>
+        <a href="?sorting_order=new">
+            <div class="my_button rounded" id="button_new"> new</div>
         </a>
     </div>
 
     <div style="margin:10px;">
-        <a href="?sorting_order=oldest">
-            <button> old </button>
+        <a href="?sorting_order=old">
+            <div class="my_button rounded" id="button_old"> old </div>
         </a>
     </div>
     <div style="margin:10px;">
         <a href="?sorting_order=new_unread">
-            <button> new + unread </button>
+            <div class="my_button rounded" id="button_new_unread"> new + unread </div>
         </a>
     </div>
     <div style="margin:10px;">
         <a href="?sorting_order=old_unread">
-            <button> old + unread </button>
+            <div class="my_button rounded" id="button_old_unread"> old + unread </div>
         </a>
     </div>
 </div>
 
     {% for message in messages %}
     <a href="/messages/{{message.message.id}}/" target="_blank">
-    <div class="message_tile col-12 row {% if not message.message.read and not message.message.sender == request.user %} message-new {% endif %}">
+    <div class="message_tile col-12 rounded-lg row {% if not message.message.read and not message.message.sender == request.user %} message-new {% endif %}">
         <div class="col-7 col-lg-9">
             {% if message.message.sender == request.user %}
             sent to: {{message.message.receiver}}
@@ -99,5 +103,22 @@
                 alert(err);
             }
         }
+
+    onLoadFunction = function()
+    {
+        var query = window.location.href.split('?')[1];
+        if(query)
+        {
+            var searchParam = query.split('&')[0].split('=')[1];
+            var buttonID = "button_" + searchParam;
+        }
+        else
+        {
+            var buttonID = "button_new";
+        }
+
+        var button = document.getElementById(buttonID);
+        button.classList.add("my_button_active");
+    }
     </script>
     {% endblock %}
