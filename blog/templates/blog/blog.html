@@ -1,5 +1,5 @@
 {% extends 'base/base.html' %}
-
+{% load bbcode_tags %}
 {% block title %}
     {{blog.display_name}}
 {% endblock %}
@@ -90,8 +90,8 @@
                                 <h4> {{post.post.title}} </h4>
                             </div>
 
-                            <div >
-                                {{post.post.content|linebreaks}}
+                            <div style="text-align:left;">
+                                {% bbcode post.post.content %}
                                 {% if post.image %}
 
                                 <img class="blog_image" src="/media/{{post.image.image}}">

@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 {% load crispy_forms_tags %}
+{% load bbcode_tags %}
 
 
 {% block title %}
@@ -38,7 +39,7 @@
 
 <div class="blog_post col-12 rounded-lg">
     <h4>{{post.title}}</h4>
-    {{post.content|linebreaks}}
+    {% bbcode post.content %}
     {% if images %}
 
     <div class="w3-content w3-display-container carousel_wrap">

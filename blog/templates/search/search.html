@@ -39,7 +39,7 @@ onload = "onLoadFunction()"
 </div>
 
 {% if blogs.has_other_pages %}
-            <div class="text-center row align-items-center justify-content-center">
+            <div class="text-center row align-items-center justify-content-center paginator">
             <ul class="pagination">
                 {% if blogs.has_previous %}
                 <li class="page-item"><a class="page-link" href="?page={{blogs.previous_page_number}}&order={{order}}&sort_by={{sort_by}}&topics={{topics}}"><i class="fas fa-chevron-left"></i></a></li>

@@ -1,9 +1,9 @@
     {% extends 'base/base.html' %}
-
+    {% load bbcode_tags %}
     {% block title %} Blogging App {% endblock %}
 
     {% block onload %}
-    onload = "onLoadFunction()"
+        onload = "onLoadFunction()"
     {% endblock %}
 
     {% block content %}
@@ -32,11 +32,11 @@
 
                         <div class="index_post_tile col-11 rounded-lg">
                             <div class="post_title">
-                                <h4> {{post.post.title}} </h4>
+                                <h4 style="color:white;"> {{post.post.title}} </h4>
                             </div>
 
-                            <div >
-                                {{post.post.content|linebreaks}}
+                            <div style="text-align: left; color:white;">
+                                {% bbcode post.post.content %}
                                 {% if post.image_count > 0 %}
 
                                 <img class="blog_image" src="/media/{{post.image.image}}">
