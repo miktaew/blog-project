@@ -9,12 +9,20 @@
     {% block content %}
         <div class="col-12 app-info rounded-bottom">
             <h5> Welcome to blogApp </h5>
-            If you want to start your own blog, all that is needed is
-            <a href="{% url 'login' %}?next={{request.path}}"style="color:white;"> signing up </a>
-            <br>
-            You can also try to find something interesting on lists below
 
         </div>
+
+        {% if not request.user.is_authenticated %}
+        <div class="col-12 notlogged_info rounded">
+
+            You can simply browse top posts or try searching for blogs that fit your interests.
+            <br>
+            Consider
+            <a href="{% url 'login' %}?next={{request.path}}"style="color:white;"> signing up </a> to enhance your experience :)
+            <br>
+
+        </div>
+        {% endif %}
         <br><br>
         <div class="text-center row align-items-center justify-content-center">
         Most popular posts from: &nbsp

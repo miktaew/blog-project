@@ -26,7 +26,7 @@
     <div class="w3-sidebar w3-bar-block w3-collapse w3-card w3-animate-left" style="width:200px; background-color: #0D1B2A" id="sidebar">
         <button class="w3-bar-item w3-button w3-large w3-hide-large" onclick="closeSidebar()">Close &times;</button>
             <a href="/" class="w3-bar-item w3-button">Main Page</a>
-            <a href="/search/" class="w3-bar-item w3-button"> Browse blogs </a>
+            <a href="/search/" class="w3-bar-item w3-button"> Search blogs </a>
             <div class="black_line"></div>
             {% if request.user.is_authenticated %}
                 <a href="{% url 'logout' %}?next={{request.path}}" class="w3-bar-item w3-button">Logout</a>
