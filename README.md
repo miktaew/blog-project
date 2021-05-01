@@ -1,4 +1,4 @@
 # blog-project
 django blogging app
 
-W.I.P
+it really, really needs some refactoring
