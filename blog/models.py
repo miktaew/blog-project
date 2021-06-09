@@ -13,15 +13,14 @@ class Topic(models.Model):
         return f'{self.name} {self.id}'
 
 
-class Blog(models.Model):  # blogs
+class Blog(models.Model):
     name = models.CharField(unique=True, max_length=60)  # this is actually blog URL, not the displayed name
     display_name = models.CharField(max_length=120, default="My Blog")
     description = models.TextField(blank=True, default="Welcome to my blog", max_length=600)
     owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name="blog")
     creation_date = models.DateTimeField(editable=False)
-    latest_post_date = models.DateTimeField(default=timezone.now())
+    latest_post_date = models.DateTimeField(default=timezone.now)
     active = models.BooleanField(default=True, blank=False)
-    topics = models.ManyToManyField(Topic, blank=True)
 
     @staticmethod
     def get_blog_by_name(blog_name):
@@ -160,3 +159,4 @@ class FavouriteBlogs(models.Model):
 class LikedPosts(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_likes')
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post_likes')
+

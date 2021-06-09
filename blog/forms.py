@@ -116,7 +116,7 @@ class BlogDeactivationForm(forms.Form):
                                    required=True,
                                    help_text="<div style='color: black;'>Enter displayed blog name for "
                                              "confirmation</div>",)
-    # No, blog for deletion is not taken from this field, it's just for confirmation
+    # No, blog for deletion is not taken from this field, it's just for additional confirmation
     deactivation_password = forms.CharField(label="Password",
                                             help_text="<div style='color: black;'>Confirm password for "
                                                       "deactivation</div>",

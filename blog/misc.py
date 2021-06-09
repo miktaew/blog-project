@@ -1,6 +1,3 @@
-from django.template.defaultfilters import register
-
-
 def fav_key_favs(favs):
     return favs['new_count']
 
